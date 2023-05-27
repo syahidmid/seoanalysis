@@ -34,6 +34,7 @@ if st.button("Analyze"):
                     meta_description_length = count_meta_description(meta_description)
                     word_count = count_words(content)
 
+                st.write("Here we go")
                 st.header(title)
                 st.write(meta_description)
 
