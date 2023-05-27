@@ -1,7 +1,9 @@
 import streamlit as st
+import time
 from scrape import get_title, get_description, get_content, is_valid_url, get_status_code, domain_disclaimer, get_content_with_html, get_headings
 from count import count_title_length, count_words, count_meta_description
-import time
+from element import get_all_headings
+
 
 st.title("SEO Content Analysis")
 st.write("This app performs an SEO analysis of a website by checking its on-page SEO factors and analyzing its primary and related keywords.")
@@ -26,20 +28,19 @@ if st.button("Analyze"):
                 with st.spinner('Scraping the website...'):
                     time.sleep(2)
                     title = get_title(url)
-                    meta_description = get_description(url)
                     content_html = get_content_with_html(url)
                     headings = get_headings(content_html)
                     content = get_content(url)
                     title_length = count_title_length(title)
-                    meta_description_length = count_meta_description(meta_description)
+                    meta_description_length = count_meta_description(get_description(url))
                     word_count = count_words(content)
+                   
 
-                st.write("Here we go")
                 st.header(title)
-                st.write(meta_description)
+                st.write(get_description(url))
 
                 # Create table to display primary keyword and results
-                st.subheader(":blue[Body count]")
+                st.subheader(":blue[Overview]")
                 table_data = {
                     'Item': ["Title Length",
                              'Meta Description Length',
@@ -50,3 +51,24 @@ if st.button("Analyze"):
                 }
                 st.write('\n\n')
                 st.table(table_data)
+
+              # Create tabs for different sections
+              
+                tab1, tab2 = st.tabs(["Headings", "Links"])
+                with tab1:
+                        st.subheader(":blue[Headings]")
+                        headings = get_all_headings(url)
+                        for heading in headings:
+                            st.write(heading)
+                with tab2:
+                    st.subheader(":blue[Internal Links Analysis]")
+                   
+
+                      
+
+              
+                
+
+
+
+
