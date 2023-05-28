@@ -1,56 +1,42 @@
+# links.py
 import requests
+import pandas as pd
+from urllib.parse import urlparse
+from tabulate import tabulate
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse, urljoin
+from scrape import get_content_with_html, get_domain
+
+
+def clean_url(url):
+    parsed_url = urlparse(url)
+    cleaned_query = '&'.join(
+        [q for q in parsed_url.query.split('&') if not q.startswith('utm_')]
+    )
+    return parsed_url._replace(query=cleaned_query).geturl()
 
 def get_internal_links(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    
-    base_url = '{uri.scheme}://{uri.netloc}'.format(uri=urlparse(url))
-    
-    internal_links = []
-    
+    content_html = get_content_with_html(url)
+    soup = BeautifulSoup(content_html, 'html.parser')
+    rows = []
+
+    # Get base url (including https://) from url
+    base_url = url.split("//")[0] + "//" + url.split("//")[1].split("/")[0]
+
     for link in soup.find_all('a'):
         href = link.get('href')
-        if href:
-            if href.startswith('/') or urlparse(href).netloc == '':
-                internal_link = urljoin(base_url, href)
-                internal_links.append(internal_link)
-    
-    return internal_links
+        if href and (base_url in href or href.startswith('/')):
+            original_href = base_url + href if href.startswith('/') else href
+            cleaned_href = clean_url(original_href)
+            try:
+                response = requests.get(original_href, timeout=5)
+                status_code = response.status_code
+            except requests.exceptions.RequestException as e:
+                status_code = 'Error: ' + str(e)
+            rows.append([cleaned_href, link.text, status_code])
+    return pd.DataFrame(rows, columns=['Internal Links To (Cleaned URL)', 'Anchor Text', 'Status Code'])
 
-def check_link_status(links):
-    checked_links = []
-    
-    for link in links:
-        try:
-            response = requests.get(link)
-            if response.status_code == 200:
-                checked_links.append((link, True))
-            else:
-                checked_links.append((link, False))
-        except:
-            checked_links.append((link, False))
-    
-    return checked_links
 
-def get_link_data(url):
-    internal_links = get_internal_links(url)
-    link_status = check_link_status(internal_links)
-    
-    link_data = []
-    
-    for link, status in link_status:
-        anchor_text = get_anchor_text(link)
-        link_data.append((link, anchor_text, status))
-    
-    return link_data
 
-def get_anchor_text(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    
-    anchor_text = soup.get_text()
-    anchor_text = anchor_text.strip() if anchor_text else ''
-    
-    return anchor_text
+
+
+

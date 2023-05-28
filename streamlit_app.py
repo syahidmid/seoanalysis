@@ -3,6 +3,7 @@ import time
 from scrape import get_title, get_description, get_content, is_valid_url, get_status_code, domain_disclaimer, get_content_with_html, get_headings
 from count import count_title_length, count_words, count_meta_description
 from element import get_all_headings
+from links import get_internal_links
 
 
 st.title("SEO Content Analysis")
@@ -60,11 +61,12 @@ if st.button("Analyze"):
                         headings = get_all_headings(url)
                         for heading in headings:
                             st.write(heading)
+                # Part of the Streamlit main function
                 with tab2:
                     st.subheader(":blue[Internal Links Analysis]")
-                   
-
-                      
+                    internal_links_table = get_internal_links(url)
+                    st.table(internal_links_table)
+                             
 
               
                 
