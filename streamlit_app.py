@@ -4,6 +4,7 @@ from scrape import get_title, get_description, get_content, is_valid_url, get_st
 from count import count_title_length, count_words, count_meta_description
 from element import get_all_headings
 from links import get_internal_links
+from keywords import check_related_keywords
 
 
 st.title("SEO Content Analysis")
@@ -12,6 +13,8 @@ st.write("This app performs an SEO analysis of a website by checking its on-page
 url_input = st.text_input("Enter a URL", max_chars=500, key="url_input")
 url = url_input.strip()
 primary_keyword = st.text_input("Enter the primary keywords")
+related_keywords = st.text_area("Enter related keywords (separated by newline)")
+related_keywords_list = related_keywords.split("\n")
 
 if not url.startswith("http"):
     url = f"https://{url}"
@@ -35,7 +38,7 @@ if st.button("Analyze"):
                     title_length = count_title_length(title)
                     meta_description_length = count_meta_description(get_description(url))
                     word_count = count_words(content)
-                   
+                    related_keywords_result = check_related_keywords(content_html, related_keywords_list)
 
                 st.header(title)
                 st.write(get_description(url))
@@ -55,7 +58,7 @@ if st.button("Analyze"):
 
               # Create tabs for different sections
               
-                tab1, tab2 = st.tabs(["Headings", "Links"])
+                tab1, tab2, tab3= st.tabs(["Headings", "Related Keywords","Internal Links"])
                 with tab1:
                         st.subheader(":blue[Headings]")
                         headings = get_all_headings(url)
@@ -63,6 +66,9 @@ if st.button("Analyze"):
                             st.write(heading)
                 # Part of the Streamlit main function
                 with tab2:
+                    st.header(":blue[Related keywords]")
+                    st.table(related_keywords_result)
+                with tab3:
                     st.subheader(":blue[Internal Links Analysis]")
                     internal_links_table = get_internal_links(url)
                     st.table(internal_links_table)
