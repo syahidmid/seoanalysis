@@ -46,78 +46,67 @@ if st.button("Analyze"):
             if get_status_code(url) != 200:
                 st.warning("The website is not up and running")
             else:
-                with st.spinner("Getting title and description..."):
+                with st.spinner("Start scraping the website..."):
+                    time.sleep(1)
                     seo_title = get_title(url)
+                    h1 = get_h1(url)
                     st.header(seo_title)
                     description = get_description(url)
                     st.write(description)
 
-                with st.spinner("Scraping the website..."):
-                    time.sleep(2)
+                with st.spinner("Trying to identify the content area..."):
+                    time.sleep(1)
                     disclaimer_message = domain_disclaimer(url)
-                    h1 = get_h1(url)
+                    st.subheader(":blue[Overview]")
+                    st.markdown(disclaimer_message)
+
+                with st.spinner("Starting content analysis..."):
+                    time.sleep(1)
                     content_html = get_content_with_html(url)
                     content = get_content(url)
                     headings = get_headings(content_html)
-
-                with st.spinner("Calculating title length..."):
                     title_length = count_title_length(seo_title)
 
-                with st.spinner("Calculating description length..."):
+                with st.spinner("Calculating word count..."):
+                    time.sleep(1)
+                    word_count = count_words(content)
                     meta_description_length = count_meta_description(description)
-
-                    with st.spinner("Calculating word count..."):
-                        word_count = count_words(content)
-
-                with st.spinner("Checking related keywords..."):
-                    related_keywords_result = check_related_keywords(
-                        content_html, related_keywords_list
-                    )
-
                 with st.spinner("Comparing SEO title with H1..."):
                     seo_title_h1_result = compare_seo_title_h1(seo_title, h1)
-
-                with st.spinner("Checking if primary keyword is in H1..."):
                     keyword_in_h1_result = check_primary_keyword_in_h1(
                         primary_keyword, h1
                     )
-
                 with st.spinner("Calculating keyword density..."):
+                    time.sleep(1)
                     keyword_density = check_primary_keyword_in_content(
                         primary_keyword, content
                     )
-
-                with st.spinner("Comparing SEO title with H1 again..."):
-                    seo_title_compatibility_with_h1 = compare_seo_title_h1(
-                        seo_title, h1
+                    table_data = {
+                        "Item": [
+                            "Title Length",
+                            "Meta Description Length",
+                            "Content Length",
+                            "SEO Title Compatibility with H1",
+                            "Primary Keyword in H1",
+                            "Keyword density",
+                        ],
+                        "Result": [
+                            title_length,
+                            meta_description_length,
+                            word_count,
+                            seo_title_h1_result,
+                            keyword_in_h1_result,
+                            keyword_density,
+                        ],
+                    }
+                    st.write("\n\n")
+                    st.table(table_data)
+                with st.spinner("Checking related keywords..."):
+                    time.sleep(1)
+                    related_keywords_result = check_related_keywords(
+                        content_html, related_keywords_list
                     )
-
-                # Create table to display primary keyword and results
-                st.subheader(":blue[Overview]")
-                st.markdown(disclaimer_message)
-                table_data = {
-                    "Item": [
-                        "Title Length",
-                        "Meta Description Length",
-                        "Content Length",
-                        "SEO Title Compatibility with H1",
-                        "Primary Keyword in H1",
-                        "Keyword density",
-                    ],
-                    "Result": [
-                        title_length,
-                        meta_description_length,
-                        word_count,
-                        seo_title_h1_result,
-                        keyword_in_h1_result,
-                        keyword_density,
-                    ],
-                }
-            st.write("\n\n")
-            st.table(table_data)
-
             # Create tabs for different sections
-
             tab1, tab2, tab3 = st.tabs(
                 ["Headings", "Related Keywords", "Internal Links"]
             )
