@@ -1,10 +1,11 @@
 import streamlit as st
 import time
-from scrape import get_title, get_description, get_content, is_valid_url, get_status_code, domain_disclaimer, get_content_with_html, get_headings
+from scrape import get_title, get_description, get_content, is_valid_url, get_status_code, domain_disclaimer, get_content_with_html, get_h1, get_headings
 from count import count_title_length, count_words, count_meta_description
 from element import get_all_headings
 from links import get_internal_links
-from keywords import check_related_keywords
+from keywords import check_related_keywords, compare_seo_title_h1, check_primary_keyword_in_h1, check_primary_keyword_in_content
+
 
 
 st.title("SEO Content Analysis")
@@ -31,27 +32,43 @@ if st.button("Analyze"):
             else:
                 with st.spinner('Scraping the website...'):
                     time.sleep(2)
-                    title = get_title(url)
+                    seo_title = get_title(url)
+                    h1 = get_h1(url)
                     content_html = get_content_with_html(url)
-                    headings = get_headings(content_html)
                     content = get_content(url)
-                    title_length = count_title_length(title)
+                    headings = get_headings(content_html)
+                    title_length = count_title_length(seo_title)
                     meta_description_length = count_meta_description(get_description(url))
                     word_count = count_words(content)
                     related_keywords_result = check_related_keywords(content_html, related_keywords_list)
+                    seo_title_h1_result = compare_seo_title_h1(seo_title, h1)
+                    keyword_in_h1_result = check_primary_keyword_in_h1(primary_keyword, h1)
+                    keyword_density = check_primary_keyword_in_content(primary_keyword, content)
 
-                st.header(title)
+                    seo_title_compatibility_with_h1 = compare_seo_title_h1(seo_title, h1)
+
+                st.header(seo_title)
                 st.write(get_description(url))
 
                 # Create table to display primary keyword and results
                 st.subheader(":blue[Overview]")
                 table_data = {
-                    'Item': ["Title Length",
-                             'Meta Description Length',
-                             'Content Length'],
-                    'Result': [title_length,
-                               meta_description_length,
-                               word_count]
+                    'Item': [
+                        "Title Length",
+                        'Meta Description Length',
+                        'Content Length',
+                        'SEO Title Compatibility with H1',
+                        'Primary Keyword in H1',
+                        'Keyword density'
+                    ],
+                    'Result': [
+                        title_length,
+                        meta_description_length,
+                        word_count,
+                        seo_title_h1_result,
+                        keyword_in_h1_result,
+                        keyword_density
+                    ]
                 }
                 st.write('\n\n')
                 st.table(table_data)

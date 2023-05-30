@@ -56,6 +56,7 @@ def get_title(url):
 
     except:
         return "Unable to get title"
+        
 def get_description(url):
     """Get the description of a webpage"""
     try:
@@ -139,6 +140,21 @@ def get_content_with_html(url):
     except:
         return "Unable to get content"
 
+def get_h1(url):
+    """Get the H1 of a webpage"""
+    try:
+        # Make request to webpage
+        response = requests.get(url)
+
+        # Parse webpage content using Beautiful Soup
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        # Get H1 of webpage
+        h1 = soup.find('h1').text if soup.find('h1') else None
+
+        return h1
+    except:
+        return "Unable to get H1"
 
 
 def get_headings(content_html):
