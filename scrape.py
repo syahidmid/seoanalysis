@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from domains import CONTENT_AREA
+from emoji import emojize
 
 # ChatGPT d2ee59b7-b368-4a5f-b3af-2e33b7f33b4a
 
@@ -36,9 +37,9 @@ def domain_disclaimer(url):
     """Display a disclaimer message if domain not defined in domains.py"""
     domain = get_domain(url)
     if domain not in CONTENT_AREA:
-        return "*Content area is undefined, result may not be valid."
+        return emojize(":folded_hands:Content area is undefined, result may not be valid.", variant="emoji_type")
     else:
-        return "*The content area has been defined, result should be more valid."
+        return emojize(":thumbs_up: Good news! The content area has already been defined, the result should be more valid.", variant="emoji_type")
 
 def get_title(url):
     """Get the title of a webpage"""
