@@ -10,7 +10,6 @@ from scrape import (
     get_content_with_html,
     get_h1,
     get_headings,
-    example_url,
 )
 from count import count_title_length, count_words, count_meta_description
 from element import get_all_headings
@@ -22,7 +21,11 @@ from keywords import (
     check_primary_keyword_in_content,
 )
 
-st.title("SEO Content Analysis 🤠")
+st.set_page_config(
+    page_title="SEOPal - Indepth Content SEO Analysis 📊",
+    page_icon="👋",
+)
+st.title("SEO Content Analysis")
 st.write(
     "This app performs an SEO analysis of a website by checking its on-page SEO factors and analyzing its primary and related keywords."
 )
@@ -30,10 +33,15 @@ st.write(
 url_input = st.text_input("Enter a URL", max_chars=500, key="url_input")
 url = url_input.strip()
 primary_keyword = st.text_input("Enter the primary keywords")
-with st.expander("Also check for related keywords"):
-    default_related_keywords = "local seo tips\nseo tips and tricks\nwordpress seo tips"
+
+with st.expander("See explanation"):
     related_keywords = st.text_area("Enter related keywords (separated by newline)")
     related_keywords_list = related_keywords.split("\n")
+
+if st.button("Analyze"):
+    # Kode analisis SEO
+    pass
+
 
 if not url.startswith("http"):
     url = f"https://{url}"

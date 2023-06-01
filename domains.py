@@ -4,4 +4,5 @@ CONTENT_AREA = {
     "otoklix": "post-content",
     "qoala": "post-content",
     "duitpintar": "blog-post_content",
+    "ahrefs": "post-content",
 }
