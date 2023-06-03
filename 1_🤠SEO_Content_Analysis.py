@@ -28,13 +28,32 @@ st.write(
     "This app performs an SEO analysis of a website by checking its on-page SEO factors and analyzing its primary and related keywords."
 )
 
-url_input = st.text_input("Enter a URL", max_chars=500, key="url_input")
+url_input = st.text_input(
+    "Enter a URL:",
+    max_chars=500,
+    key="url_input",
+    placeholder="https://example.com/seo-strategy/",
+)
 url = url_input.strip()
-primary_keyword = st.text_input("Enter the primary keywords")
+primary_keyword = st.text_input(
+    "Enter the primary keywords:", placeholder="best seo strategy"
+)
 with st.expander("Advance"):
     default_related_keywords = "local seo tips\nseo tips and tricks\nwordpress seo tips"
-    related_keywords = st.text_area("Enter related keywords (separated by newline)")
+    related_keywords = st.text_area(
+        "Enter related keywords (separated by newline):",
+        value="",
+        placeholder=default_related_keywords,
+    )
     related_keywords_list = related_keywords.split("\n")
+    # URL inputs
+    st.write("Enter your competitor SERP")
+    url_input1 = st.text_input("URL 1", value="", placeholder="Enter URL 1")
+    url_input2 = st.text_input("URL 2", value="", placeholder="Enter URL 2")
+    url_input3 = st.text_input("URL 3", value="", placeholder="Enter URL 3")
+    url_input4 = st.text_input("URL 4", value="", placeholder="Enter URL 4")
+
+full_report = st.checkbox("See full report.")
 
 if not url.startswith("http"):
     url = f"https://{url}"
@@ -65,6 +84,9 @@ if st.button("Analyze"):
                 disclaimer_message = domain_disclaimer(url)
                 st.subheader(":blue[Overview]")
                 st.markdown(disclaimer_message)
+
+                if full_report:
+                    st.write("full report")
 
             with st.spinner("Starting content analysis..."):
                 time.sleep(1)
@@ -134,12 +156,41 @@ if st.button("Analyze"):
             # Part of the Streamlit main function
             with tab2:
                 st.write("Hello")
+                if url_input1.strip():
+                    heading_url1 = get_all_headings(url_input1)
+                    if heading_url1:
+                        for heading in heading_url1:
+                            st.markdown(heading)
+                else:
+                    st.warning("Please enter URL 1")
             with tab3:
                 st.write("Hello")
+                if url_input2.strip():
+                    heading_url2 = get_all_headings(url_input2)
+                    if heading_url2:
+                        for heading in heading_url2:
+                            st.write(heading)
+                else:
+                    st.warning("Please enter URL 1")
             with tab4:
                 st.write("Hello")
+                if url_input3.strip():
+                    heading_url3 = get_all_headings(url_input3)
+                    if heading_url3:
+                        for heading in heading_url3:
+                            st.write(heading)
+                else:
+                    st.warning("Please enter URL 1")
             with tab5:
                 st.write("Hello")
+                st.write("Hello")
+                if url_input4.strip():
+                    heading_url4 = get_all_headings(url_input4)
+                    if heading_url4:
+                        for heading in heading_url4:
+                            st.write(heading)
+                else:
+                    st.warning("Please enter URL 1")
         # Related Keywords Analysis
         with st.expander("Related Keywords"):
             st.header(":blue[Related keywords]")
@@ -148,5 +199,5 @@ if st.button("Analyze"):
         # Internal Links Analysis
         with st.expander("Internal Links"):
             st.subheader(":blue[Internal Links Analysis]")
-            internal_links_table = get_internal_links(url)
+            internal_links_table = get_internal_links(url, full_report)
             st.table(internal_links_table)
