@@ -30,7 +30,7 @@ st.write(
 url_input = st.text_input("Enter a URL", max_chars=500, key="url_input")
 url = url_input.strip()
 primary_keyword = st.text_input("Enter the primary keywords")
-with st.expander("Also check for related keywords"):
+with st.expander("Advance"):
     default_related_keywords = "local seo tips\nseo tips and tricks\nwordpress seo tips"
     related_keywords = st.text_area("Enter related keywords (separated by newline)")
     related_keywords_list = related_keywords.split("\n")
@@ -108,20 +108,45 @@ if st.button("Analyze"):
                     related_keywords_result = check_related_keywords(
                         content_html, related_keywords_list
                     )
-            # Create tabs for different sections
-            tab1, tab2, tab3 = st.tabs(
-                ["Headings", "Related Keywords", "Internal Links"]
-            )
-            with tab1:
-                st.subheader(":blue[Headings]")
-                headings = get_all_headings(url)
-                for heading in headings:
-                    st.write(heading)
-            # Part of the Streamlit main function
-            with tab2:
+                    outline_expander = st.expander("Outline Analysis")
+                    related_keywords_expander = st.expander(
+                        "Related Keywords", expanded=True
+                    )
+                    internal_links_expander = st.expander(
+                        "Internal Links", expanded=True
+                    )
+
+                # Outline Analysis
+            with st.expander("Outline", expanded=True):
+                tab1, tab2, tab3, tab4, tab5 = st.tabs(
+                    [
+                        "My Article",
+                        "Competitor 1",
+                        "Competitor 2",
+                        "Competitor 3",
+                        "Competitor 4",
+                    ]
+                )
+                with tab1:
+                    st.subheader(":blue[Headings]")
+                    headings = get_all_headings(url)
+                    for heading in headings:
+                        st.write(heading)
+                # Part of the Streamlit main function
+                with tab2:
+                    st.write("Hello")
+                with tab3:
+                    st.write("Hello")
+                with tab4:
+                    st.write("Hello")
+                with tab5:
+                    st.write("Hello")
+            # Related Keywords Analysis
+            with st.expander("Related Keywords"):
                 st.header(":blue[Related keywords]")
                 st.table(related_keywords_result)
-            with tab3:
+            # Internal Links Analysis
+            with st.expander("Internal Links"):
                 st.subheader(":blue[Internal Links Analysis]")
                 internal_links_table = get_internal_links(url)
                 st.table(internal_links_table)
