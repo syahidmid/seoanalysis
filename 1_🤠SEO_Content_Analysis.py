@@ -11,7 +11,6 @@ from scrape import (
     get_content_with_html,
     get_h1,
     get_headings,
-    example_url,
 )
 from count import count_title_length, count_words, count_meta_description
 from links import get_internal_links
