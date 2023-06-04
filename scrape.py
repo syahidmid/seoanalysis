@@ -196,17 +196,11 @@ def get_headings(content_html):
     for heading in headings:
         # Menambahkan tag sesuai dengan tipe heading
         if heading.name == "h1":
-            all_headings.append(
-                f"<H1>{heading.text}</H1>"
-            )  # Menambahkan dua baris baru setelah H1
+            all_headings.append(f"<H1>{heading.text}")
         elif heading.name == "h2":
-            all_headings.append(
-                f"<H2>{heading.text}</H2>"
-            )  # Menambahkan dua baris baru setelah H2
+            all_headings.append(f"<H2>{heading.text}")
         elif heading.name == "h3":
-            all_headings.append(
-                f"<H3>{heading.text}</H3>"
-            )  # Menambahkan dua baris baru setelah H3
+            all_headings.append(f"<H3>{heading.text}")
 
     # Mengembalikan list heading
     return all_headings

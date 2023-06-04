@@ -14,7 +14,6 @@ from scrape import (
     example_url,
 )
 from count import count_title_length, count_words, count_meta_description
-from element import get_all_headings
 from links import get_internal_links
 from keywords import (
     check_related_keywords,
@@ -150,45 +149,65 @@ if st.button("Analyze"):
             )
             with tab1:
                 st.subheader(":blue[Headings]")
-                headings = get_all_headings(url)
+                st.write(h1)
+                st.write(url)
+                st.write(description)
                 for heading in headings:
                     st.write(heading)
             # Part of the Streamlit main function
             with tab2:
                 st.write("Hello")
                 if url_input1.strip():
-                    heading_url1 = get_all_headings(url_input1)
+                    title_url1 = get_h1(url_input1)
+                    description_url1 = get_description(url_input1)
+                    content_url1 = get_content_with_html(url_input1)
+                    heading_url1 = get_headings(content_url1)
+                    st.write(title_url1)
+                    st.write(url_input1)
+                    st.write(description_url1)
                     if heading_url1:
                         for heading in heading_url1:
                             st.markdown(heading)
                 else:
                     st.warning("Please enter URL 1")
             with tab3:
-                st.write("Hello")
                 if url_input2.strip():
-                    heading_url2 = get_all_headings(url_input2)
+                    title_url2 = get_h1(url_input2)
+                    description_url2 = get_description(url_input2)
+                    content_url2 = get_content_with_html(url_input2)
+                    heading_url2 = get_headings(content_url2)
+                    st.write(title_url2)
+                    st.write(url_input2)
+                    st.write(description_url2)
                     if heading_url2:
                         for heading in heading_url2:
-                            st.write(heading)
+                            st.markdown(heading)
                 else:
                     st.warning("Please enter URL 1")
             with tab4:
-                st.write("Hello")
-                if url_input3.strip():
-                    heading_url3 = get_all_headings(url_input3)
-                    if heading_url3:
-                        for heading in heading_url3:
-                            st.write(heading)
+                title_url3 = get_h1(url_input3)
+                description_url3 = get_description(url_input3)
+                content_url3 = get_content_with_html(url_input3)
+                heading_url3 = get_headings(content_url3)
+                st.write(title_url3)
+                st.write(url_input3)
+                st.write(description_url3)
+                if heading_url3:
+                    for heading in heading_url3:
+                        st.markdown(heading)
                 else:
                     st.warning("Please enter URL 1")
             with tab5:
-                st.write("Hello")
-                st.write("Hello")
-                if url_input4.strip():
-                    heading_url4 = get_all_headings(url_input4)
-                    if heading_url4:
-                        for heading in heading_url4:
-                            st.write(heading)
+                title_url4 = get_h1(url_input4)
+                description_url4 = get_description(url_input4)
+                content_url4 = get_content_with_html(url_input4)
+                heading_url4 = get_headings(content_url4)
+                st.write(title_url4)
+                st.write(url_input4)
+                st.write(description_url4)
+                if heading_url4:
+                    for heading in heading_url4:
+                        st.markdown(heading)
                 else:
                     st.warning("Please enter URL 1")
         # Related Keywords Analysis
