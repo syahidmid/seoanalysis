@@ -5,7 +5,7 @@ CONTENT_AREA = {
     "carmudi": "single-entry-summary-post-content",
     "duitpintar": "blog-post_content",
     "doktermobil": "elementor-widget-container",
-    "gridoto": "read__article clearfix",
+    "gridoto": "read__article",
     "idntimes": "content-post-description full",
     "kompas": "read__content",
     "lifepal": "SinglePost_post__content__3RMzn",

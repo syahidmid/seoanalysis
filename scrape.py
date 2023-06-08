@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import re
 from domains import CONTENT_AREA
 from emoji import emojize
+from urllib.parse import urlparse
 
 # ChatGPT d2ee59b7-b368-4a5f-b3af-2e33b7f33b4a
 example_url = [
@@ -106,10 +107,14 @@ def get_description(url):
 
 
 def get_content(url):
-    """Get the content of a webpage"""
     try:
         # Check if domain is registered
-        domain = get_domain(url)
+        parsed_url = urlparse(url)
+        domain = (
+            parsed_url.netloc.split(".")[-2]
+            if parsed_url.netloc.count(".") >= 2
+            else parsed_url.netloc
+        )
         content_class = CONTENT_AREA.get(domain)
 
         if content_class:
@@ -204,3 +209,13 @@ def get_headings(content_html):
 
     # Mengembalikan list heading
     return all_headings
+
+
+def get_first_parapraph(content):
+    soup = BeautifulSoup(content, "html.parser")
+    first_pargraph = soup.find("p")
+
+    if first_pargraph:
+        return first_pargraph.text.strip()
+    else:
+        " "

@@ -11,14 +11,18 @@ from scrape import (
     get_content_with_html,
     get_h1,
     get_headings,
+    get_first_parapraph,
 )
 from count import count_title_length, count_words, count_meta_description
 from links import get_internal_links
+from urllib.parse import urlparse
 from keywords import (
     check_related_keywords,
     compare_seo_title_h1,
     check_primary_keyword_in_h1,
     check_primary_keyword_in_content,
+    check_primary_keyword_in_headings,
+    check_primary_in_first_p,
 )
 
 st.title("SEO Content Analysis 🤠")
@@ -33,9 +37,16 @@ url_input = st.text_input(
     placeholder="https://example.com/seo-strategy/",
 )
 url = url_input.strip()
+parsed_url = urlparse(url)
+domain_name = (
+    parsed_url.netloc.split(".")[-2]
+    if parsed_url.netloc.count(".") >= 2
+    else parsed_url.netloc
+)
 primary_keyword = st.text_input(
     "Enter the primary keywords:", placeholder="best seo strategy"
 )
+primary_keyword = primary_keyword.lower()
 with st.expander("Advance"):
     default_related_keywords = "local seo tips\nseo tips and tricks\nwordpress seo tips"
     related_keywords = st.text_area(
@@ -43,7 +54,9 @@ with st.expander("Advance"):
         value="",
         placeholder=default_related_keywords,
     )
-    related_keywords_list = related_keywords.split("\n")
+    related_keywords_list = [
+        keyword.strip() for keyword in related_keywords.split("\n")
+    ]
     # URL inputs
     st.write("Enter your competitor SERP")
     url_input1 = st.text_input("URL 1", value="", placeholder="Enter URL 1")
@@ -76,6 +89,7 @@ if st.button("Analyze"):
             st.header(seo_title)
             description = get_description(url)
             st.write(description)
+            st.write(domain_name)
 
             with st.spinner("Trying to identify the content area..."):
                 time.sleep(1)
@@ -91,6 +105,7 @@ if st.button("Analyze"):
                 content_html = get_content_with_html(url)
                 content = get_content(url)
                 headings = get_headings(content_html)
+                first_parapraph = get_first_parapraph(content)
                 title_length = count_title_length(seo_title)
 
             with st.spinner("Calculating word count..."):
@@ -100,6 +115,12 @@ if st.button("Analyze"):
             with st.spinner("Comparing SEO title with H1..."):
                 seo_title_h1_result = compare_seo_title_h1(seo_title, h1)
                 keyword_in_h1_result = check_primary_keyword_in_h1(primary_keyword, h1)
+                keyword_in_headings = check_primary_keyword_in_headings(
+                    primary_keyword, headings
+                )
+                keyword_in_first_paragraph = check_primary_in_first_p(
+                    primary_keyword, content
+                )
             with st.spinner("Calculating keyword density..."):
                 time.sleep(1)
                 keyword_density = check_primary_keyword_in_content(
@@ -116,6 +137,8 @@ if st.button("Analyze"):
                         "Content Length",
                         "SEO Title Compatibility with H1",
                         "Primary Keyword in H1",
+                        "Primary Keyword in Headings",
+                        "Primary Keyword in First Paragraph",
                         "Keyword density",
                     ],
                     "Result": [
@@ -124,6 +147,8 @@ if st.button("Analyze"):
                         word_count,
                         seo_title_h1_result,
                         keyword_in_h1_result,
+                        keyword_in_headings,
+                        keyword_in_first_paragraph,
                         keyword_density,
                     ],
                 }

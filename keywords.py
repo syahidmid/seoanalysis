@@ -48,9 +48,15 @@ def check_primary_keyword_in_h1(primary_keyword, h1):
         return False
 
 
+def check_primary_keyword_in_headings(primary_keyword, headings):
+    if primary_keyword in headings:
+        return True
+    else:
+        return False
+
+
 def check_primary_keyword_in_content(primary_keyword, content):
     # Convert both primary keyword and content to lower case to ensure case-insensitive checking
-    primary_keyword = primary_keyword.lower()
     content = content.lower()
 
     # Count the number of times the primary keyword appears in the content
@@ -64,3 +70,12 @@ def check_primary_keyword_in_content(primary_keyword, content):
         return [f"True, {keyword_count} times ({keyword_density}%)"]
     else:
         return [primary_keyword, "False, 0 times (0%)"]
+
+
+def check_primary_in_first_p(primary_keyword, first_parapraph):
+    first_parapraph = first_parapraph.lower()
+
+    if primary_keyword in first_parapraph:
+        return True
+    else:
+        False
