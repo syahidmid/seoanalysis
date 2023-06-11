@@ -1,7 +1,7 @@
 # File: keywords.py
 from bs4 import BeautifulSoup
 from pandas import DataFrame
-from scrape import get_h1
+from scrapers.scrape import get_h1
 import re
 
 

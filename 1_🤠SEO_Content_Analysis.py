@@ -1,28 +1,28 @@
 import streamlit as st
 import time
 import sys
-from scrape import (
-    get_title,
-    get_description,
-    get_content,
+from urllib.parse import urlparse
+from scrapers.scrape import (
     is_valid_url,
     get_status_code,
     domain_disclaimer,
+    get_title,
+    get_description,
+    get_content,
     get_content_with_html,
     get_h1,
     get_headings,
     get_first_parapraph,
 )
-from count import count_title_length, count_words, count_meta_description
-from links import get_internal_links
-from urllib.parse import urlparse
-from keywords import (
-    check_related_keywords,
+from analyzers.links import get_internal_links
+from analyzers.count import count_title_length, count_words, count_meta_description
+from analyzers.keywords import (
     compare_seo_title_h1,
+    check_related_keywords,
     check_primary_keyword_in_h1,
+    check_primary_in_first_p,
     check_primary_keyword_in_content,
     check_primary_keyword_in_headings,
-    check_primary_in_first_p,
 )
 
 st.title("SEO Content Analysis 🤠")

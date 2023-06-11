@@ -4,7 +4,7 @@ import pandas as pd
 from urllib.parse import urlparse
 from tabulate import tabulate
 from bs4 import BeautifulSoup
-from scrape import get_content_with_html, get_domain
+from scrapers.scrape import get_content_with_html, get_domain
 
 
 def clean_url(url):
