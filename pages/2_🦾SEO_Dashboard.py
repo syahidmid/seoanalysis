@@ -137,17 +137,26 @@ with st.expander("Upload SERP Robot"):
             media_o = pd.read_csv(os.path.join(folder_path, "Media O.csv"))
             serp_data = pd.read_csv(os.path.join(folder_path, "SERP All Data.csv"))
 
-            merged_data = media_o.merge(
-                serp_data[["search_key", "www.google.co.id current position"]],
-                on="search_key",
-                how="left",
+            # Create a list of keywords from Media O
+            media_o_keywords = media_o["Keyword"].tolist()
+
+            # Perform vlookup and update "Keyword found in SERPRobot" column
+            media_o["Keyword found in SERPRobot"] = (
+                media_o["Keyword"]
+                .isin(serp_data["Keyword for: (lifepal.co.id/media)"])
+                .map({True: "True", False: "False"})
             )
 
-            merged_data["Current Position"] = merged_data[
-                "www.google.co.id current position"
-            ].fillna(100)
-
-            media_o["Current Position"] = merged_data["Current Position"]
-
             media_o.to_csv(os.path.join(folder_path, "Media O.csv"), index=False)
+
+            # Create a download button for the updated file
+            with open(os.path.join(folder_path, "Media O.csv"), "rb") as f:
+                bytes_data = f.read()
+            st.download_button(
+                label="Download Updated Media O.csv",
+                data=bytes_data,
+                file_name="Media O.csv",
+                mime="text/csv",
+            )
+
             st.write("Data updated successfully.")
