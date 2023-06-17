@@ -1,33 +1,27 @@
-from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
-import language_tool_python
+from language_tool import LanguageTool
 
 
-def check_writing_style(text):
-    tool = language_tool_python.LanguageTool("id")
-    matches = tool.check(text)
+def check_spelling(sentence):
+    # Inisialisasi objek LanguageTool untuk bahasa Inggris
+    tool = LanguageTool("en-US")
 
-    errors = []
-    for match in matches:
-        if match.ruleId != "WHITESPACE_RULE":
-            error = {
-                "message": match.message,
-                "context": match.context,
-                "replacements": match.replacements,
-            }
-            errors.append(error)
+    # Memeriksa ejaan dalam kalimat
+    matches = tool.check(sentence)
 
-    return errors
+    # Menampilkan kesalahan ejaan
+    if len(matches) > 0:
+        print("Kesalahan ejaan ditemukan:")
+        for match in matches:
+            print("Pada posisi", match.offset, ":", match.message)
+    else:
+        print("Tidak ada kesalahan ejaan.")
 
 
-# Contoh penggunaan
-text = "asuransi mobil yang bagus"
-errors = check_writing_style(text)
-if len(errors) > 0:
-    print("Terdapat kesalahan dalam penulisan:")
-    for error in errors:
-        print(f"Kesalahan: {error['message']}")
-        print(f"Konteks: {error['context']}")
-        print(f"Rekomendasi: {', '.join(error['replacements'])}")
-        print()
-else:
-    print("Tidak ditemukan kesalahan dalam penulisan.")
+# Contoh pemanggilan fungsi
+kalimat = "I like to reed buks."
+check_spelling(kalimat)
+
+
+# Contoh pemanggilan fungsi
+kalimat = "I like to reed buks."
+check_spelling(kalimat)
