@@ -200,6 +200,7 @@ if st.button("Analyze"):
         
         st.session_state['results']['h1'] = h1
         st.session_state['results']['url'] = url
+        st.session_state['results']['file_html'] = file_html
         st.session_state['results']['content_text'] = content_text
         st.session_state['results']['headings'] = headings
         st.session_state['results']['table_data'] = table_data
@@ -228,6 +229,7 @@ if 'results' in st.session_state:
         internal_links_table = results.get('internal_links_table')
         meta_table = results.get('meta_table')
         content_text = results.get('content_text')
+        file_html = results.get('file_html')
 
         st.header(h1)
         st.write(meta_description)
@@ -256,7 +258,7 @@ if 'results' in st.session_state:
                     headings = results['headings']
                     for heading in headings:
                         st.write(heading)
-  
+ 
             with tab2:
                 st.write("Hello")
                 if 'url_input1' in results:
