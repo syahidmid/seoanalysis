@@ -230,6 +230,10 @@ if 'results' in st.session_state:
         meta_table = results.get('meta_table')
         content_text = results.get('content_text')
         file_html = results.get('file_html')
+        url_input1 = results.get('url_input1')
+        url_input2 = results.get('url_input2')
+        url_input3 = results.get('url_input3')
+        url_input4 = results.get('url_input4')
 
         st.header(h1)
         st.write(meta_description)
