@@ -15,8 +15,9 @@ def clean_url(url):
     return parsed_url._replace(query=cleaned_query).geturl()
 
 
-def get_internal_links(url, full_report):
-    content_html = get_content_with_html(url)
+def get_internal_links(url, content_html, full_report):
+    
+    
     soup = BeautifulSoup(content_html, "html.parser")
     rows = []
 
@@ -42,3 +43,5 @@ def get_internal_links(url, full_report):
     return pd.DataFrame(
         rows, columns=["Internal Links To (Cleaned URL)", "Anchor Text", "Status Code"]
     )
+
+

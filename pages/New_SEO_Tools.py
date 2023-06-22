@@ -35,6 +35,15 @@ from analyzers.keywords import (
     check_primary_keyword_in_content,
     check_primary_keyword_in_headings,
 )
+st.set_page_config(
+    page_title="SEO Content Analysis",
+    page_icon="👋",
+    layout= "wide",
+    initial_sidebar_state="auto",
+)
+# Initialize session state
+if 'results' not in st.session_state:
+    st.session_state['results'] = {}
 
 st.title("SEO Content Analysis 🤠")
 st.write(
@@ -91,54 +100,55 @@ if st.button("Analyze"):
             st.warning("The website is not up and running")
             sys.exit(
                 1
-            )  # Exit the program with an exit code of 1 # Hentikan eksekusi program di sini
+            )  
         with st.spinner("Start scraping the website..."):
             time.sleep(1)
-            html_content = get_html_content(url)
-            content_html = get_content_with_html(url)
-            content = get_content(url, html_content)
+            file_html = get_html_content(url)
+            content_text = get_content(url, file_html)
+            content_html = get_content_with_html(url, file_html)
             seo_title = get_title(url)
-            meta_description = get_meta_description(html_content)
+            h1 = get_h1(url)
+            meta_description = get_meta_description(file_html)
+            disclaimer_message = domain_disclaimer(url)
+            domain_name = domain_name
+            meta_title = get_meta_title(file_html)
+            meta_keywords = get_meta_keywords(file_html)
+            canonical = get_canonical_url(file_html)
+            author = get_author(file_html)
+            publisher = get_publisher(file_html)
+            language = get_language(file_html)
 
-            st.header(seo_title)
-            st.write(meta_description)
-            st.write(domain_name)
-            with st.spinner("Trying to identify the content area..."):
-                time.sleep(1)
-                disclaimer_message = domain_disclaimer(url)
-                st.subheader(":blue[Overview]")
-                st.markdown(disclaimer_message)
-                if full_report:
-                    st.write("full report")
+        with st.spinner("Starting content analysis..."):
+            time.sleep(1)
+            headings = get_headings(file_html)
+            first_parapraph = get_first_parapraph(file_html)
+            internal_links_table = get_internal_links(url, content_html, full_report)
 
-            with st.spinner("Starting content analysis..."):
-                time.sleep(1)
-                h1 = get_h1(url)
-                headings = get_headings(content_html)
-                first_parapraph = get_first_parapraph(html_content)
+        with st.spinner("Calculating word count..."):
+            time.sleep(1)
+            article_length = word_counter(content_text)
+            title_length = character_counter(seo_title)
+            meta_description_length = character_counter(meta_description)
 
-            with st.spinner("Calculating word count..."):
-                time.sleep(1)
-                article_length = word_counter(content)
-            with st.spinner("Comparing SEO title with H1..."):
-                seo_title_h1_result = compare_seo_title_h1(seo_title, h1)
-                keyword_in_h1_result = check_primary_keyword_in_h1(primary_keyword, h1)
-                keyword_in_headings = check_primary_keyword_in_headings(
-                    primary_keyword, headings
-                )
-                keyword_in_first_paragraph = check_primary_in_first_p(
-                    primary_keyword, content
-                )
-            with st.spinner("Calculating keyword density..."):
-                time.sleep(1)
-                keyword_density = check_primary_keyword_in_content(
-                    primary_keyword, content
-                )
-                related_keywords_result = check_related_keywords(
-                    content_html, related_keywords_list
-                )
+        with st.spinner("Comparing SEO title with H1..."):
+            seo_title_h1_result = compare_seo_title_h1(seo_title, h1)
+            keyword_in_h1_result = check_primary_keyword_in_h1(primary_keyword, h1)
+            keyword_in_headings = check_primary_keyword_in_headings(
+                primary_keyword, headings
+            )
+            keyword_in_first_paragraph = check_primary_in_first_p(
+                primary_keyword, content_text
+             )
 
-                table_data = {
+        with st.spinner("Calculating keyword density..."):
+            time.sleep(1)
+            keyword_density = check_primary_keyword_in_content(
+                primary_keyword, content_text
+            )
+            related_keywords_result = check_related_keywords(
+                content_text, related_keywords_list
+            )
+            table_data = {
                     "Item": [
                         "Content Length",
                         "SEO Title Compatibility with H1",
@@ -156,24 +166,6 @@ if st.button("Analyze"):
                         keyword_density,
                     ],
                 }
-                st.write("\n\n")
-                st.table(table_data)
-                outline_expander = st.expander("Outline Analysis")
-                related_keywords_expander = st.expander(
-                    "Related Keywords", expanded=True
-                )
-                internal_links_expander = st.expander("Internal Links", expanded=True)
-        with st.expander("Meta Properties", expanded=False):
-            meta_title = get_meta_title(html_content)
-            meta_keywords = get_meta_keywords(html_content)
-            canonical = get_canonical_url(html_content)
-            author = get_author(html_content)
-            publisher = get_publisher(html_content)
-            language = get_language(html_content)
-
-            title_length = character_counter(seo_title)
-            meta_description_length = character_counter(meta_description)
-
             meta_table = {
                 "Meta Property": [
                     "Meta Title",
@@ -203,11 +195,51 @@ if st.button("Analyze"):
                     "",
                 ],
             }
+            
+        # Save results to session state
+        
+        st.session_state['results']['h1'] = h1
+        st.session_state['results']['url'] = url
+        st.session_state['results']['content_text'] = content_text
+        st.session_state['results']['headings'] = headings
+        st.session_state['results']['table_data'] = table_data
+        st.session_state['results']['meta_table'] = meta_table
+        st.session_state['results']['domain_name'] = domain_name
+        st.session_state['results']['meta_description'] = meta_description
+        st.session_state['results']['disclaimer_message'] = disclaimer_message
+        st.session_state['results']['related_keywords'] = related_keywords_result
+        st.session_state['results']['internal_links_table'] = internal_links_table
+        st.session_state['results']['url_input1'] = url_input1
+        st.session_state['results']['url_input2'] = url_input2
+        st.session_state['results']['url_input3'] = url_input3
+        st.session_state['results']['url_input4'] = url_input4
 
-            df = pd.DataFrame(meta_table)
-            st.table(df)
+# Display results using session state
+if 'results' in st.session_state:
+    results = st.session_state['results']
+    if 'h1' in results:
+        h1 = results['h1']
+        meta_description = results.get('meta_description')
+        domain_name = results.get('domain_name')
+        disclaimer_message = results.get('disclaimer_message')
+        url = results.get('url')
+        table_data = results.get('table_data')
+        related_keywords_result = results.get('related_keywords')
+        internal_links_table = results.get('internal_links_table')
+        meta_table = results.get('meta_table')
+        content_text = results.get('content_text')
 
-            # Outline Analysis
+        st.header(h1)
+        st.write(meta_description)
+        st.write(domain_name)
+        st.subheader(":blue[Overview]")
+        st.write(disclaimer_message)
+        st.write("\n\n")
+        st.table(table_data)
+
+        with st.expander("Meta Properties", expanded=False):
+            st.table(meta_table)
+
         with st.expander("Outline", expanded=True):
             tab1, tab2, tab3, tab4, tab5 = st.tabs(
                 [
@@ -220,18 +252,18 @@ if st.button("Analyze"):
             )
             with tab1:
                 st.subheader(":blue[Headings]")
-                st.write(h1)
-                st.write(url)
-                st.write(meta_description)
-                for heading in headings:
-                    st.write(heading)
-            # Part of the Streamlit main function
+                if 'headings' in results:
+                    headings = results['headings']
+                    for heading in headings:
+                        st.write(heading)
+  
             with tab2:
                 st.write("Hello")
-                if url_input1.strip():
+                if 'url_input1' in results:
+                    url_input1 = results['url_input1']
                     title_url1 = get_h1(url_input1)
                     description_url1 = get_meta_description(url_input1)
-                    content_url1 = get_content_with_html(url_input1)
+                    content_url1 = get_content_with_html(url_input1, file_html)
                     heading_url1 = get_headings(content_url1)
                     st.write(title_url1)
                     st.write(url_input1)
@@ -242,10 +274,11 @@ if st.button("Analyze"):
                 else:
                     st.warning("Please enter URL 1")
             with tab3:
-                if url_input2.strip():
+                if 'url_input2' in results:
+                    url_input2 = results['url_input2']
                     title_url2 = get_h1(url_input2)
                     description_url2 = get_meta_description(url_input2)
-                    content_url2 = get_content_with_html(url_input2)
+                    content_url2 = get_content_with_html(url_input2, file_html)
                     heading_url2 = get_headings(content_url2)
                     st.write(title_url2)
                     st.write(url_input2)
@@ -254,44 +287,50 @@ if st.button("Analyze"):
                         for heading in heading_url2:
                             st.markdown(heading)
                 else:
-                    st.warning("Please enter URL 1")
+                    st.warning("Please enter URL 2")
             with tab4:
-                title_url3 = get_h1(url_input3)
-                description_url3 = get_meta_description(url_input3)
-                content_url3 = get_content_with_html(url_input3)
-                heading_url3 = get_headings(content_url3)
-                st.write(title_url3)
-                st.write(url_input3)
-                st.write(description_url3)
-                if heading_url3:
-                    for heading in heading_url3:
-                        st.markdown(heading)
+                if 'url_input3' in results:
+                    url_input3 = results['url_input3']
+                    title_url3 = get_h1(url_input3)
+                    description_url3 = get_meta_description(url_input3)
+                    content_url3 = get_content_with_html(url_input3, file_html)
+                    heading_url3 = get_headings(content_url3)
+                    st.write(title_url3)
+                    st.write(url_input3)
+                    st.write(description_url3)
+                    if heading_url3:
+                        for heading in heading_url3:
+                            st.markdown(heading)
                 else:
-                    st.warning("Please enter URL 1")
+                    st.warning("Please enter URL 3")
             with tab5:
-                title_url4 = get_h1(url_input4)
-                description_url4 = get_meta_description(url_input4)
-                content_url4 = get_content_with_html(url_input4)
-                heading_url4 = get_headings(content_url4)
-                st.write(title_url4)
-                st.write(url_input4)
-                st.write(description_url4)
-                if heading_url4:
-                    for heading in heading_url4:
-                        st.markdown(heading)
+                if 'url_input4' in results:
+                    url_input4 = results['url_input4']
+                    title_url4 = get_h1(url_input4)
+                    description_url4 = get_meta_description(url_input4)
+                    content_url4 = get_content_with_html(url_input4, file_html)
+                    heading_url4 = get_headings(content_url4)
+                    st.write(title_url4)
+                    st.write(url_input4)
+                    st.write(description_url4)
+                    if heading_url4:
+                        for heading in heading_url4:
+                            st.markdown(heading)
                 else:
-                    st.warning("Please enter URL 1")
+                    st.warning("Please enter URL 4")
+
         # Related Keywords Analysis
         with st.expander("Related Keywords"):
             st.header(":blue[Related keywords]")
-
             st.table(related_keywords_result)
         # Internal Links Analysis
         with st.expander("Internal Links"):
             st.subheader(":blue[Internal Links Analysis]")
-            internal_links_table = get_internal_links(url, full_report)
             st.table(internal_links_table)
         # Content
         with st.expander("Content"):
             st.subheader(":blue[Content]")
-            st.write(content)
+            st.write(content_text)
+        
+
+
