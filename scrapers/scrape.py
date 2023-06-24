@@ -260,22 +260,22 @@ def get_content_with_html(url, html_content):
 
 
 
-def get_h1(url):
-    """Get the H1 of a webpage"""
-    try:
-        # Make request to webpage
-        response = requests.get(url)
 
-        # Parse webpage content using Beautiful Soup
-        soup = BeautifulSoup(response.content, "html.parser")
 
-        # Get H1 of webpage
-        h1 = soup.find("h1").text if soup.find("h1") else None
+def get_h1(file_html):
+   
+    soup = BeautifulSoup(file_html, 'html.parser')
+    
+    # Mencari tag <h1> pertama dalam HTML
+    h1_tag = soup.find('h1')
+    
+    # Mengembalikan teks dari tag <h1> jika ditemukan, atau None jika tidak ditemukan
+    if h1_tag:
+        return h1_tag.text
+    else:
+        return None
 
-        return h1
-    except:
-        return "Unable to get H1"
-
+  
 
 def get_headings(content_html):
     soup = BeautifulSoup(content_html, "html.parser")
