@@ -262,7 +262,7 @@ if 'results' in st.session_state:
                     headings = results['headings']
                     for heading in headings:
                         st.write(heading)
- 
+
             with tab2:
                 st.write("Hello")
                 if 'url_input1' in results:
