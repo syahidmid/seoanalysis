@@ -116,8 +116,8 @@ if st.button("Analyze"):
             publisher = get_publisher(file_html)
             language = get_language(file_html)
             h1 = get_h1(file_html)
-            headings = get_headings(file_html)
-            first_parapraph = get_first_parapraph(file_html)
+            headings = get_headings(content_html)
+            first_parapraph = get_first_parapraph(content_html)
             internal_links_table = get_internal_links(url, content_html, full_report)
 
         with st.spinner("Starting content analysis..."):

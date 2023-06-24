@@ -273,7 +273,8 @@ def get_h1(file_html):
     if h1_tag:
         return h1_tag.text
     else:
-        return None
+        return "Not Found"
+
 
   
 

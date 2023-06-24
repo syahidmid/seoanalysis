@@ -7,7 +7,7 @@ CONTENT_AREA = {
     "doktermobil": "elementor-widget-container",
     "gridoto": "read__article",
     "idntimes": "content-post-description full",
-    "kompas": "read__content",
+    "kompas": "read__header col-offset-fluid clearfix",
     "lifepal": "content.SinglePost_post__content__3RMzn",
     "mobbi": "article-details-content",
     "otoklix": "post-content",
