@@ -125,23 +125,90 @@ if st.button("Analyze"):
             article_length = word_counter(content_text)
             title_length = character_counter(meta_title)
             meta_description_length = character_counter(meta_description)
-            seo_title_h1_result = compare_seo_title_h1(meta_title, h1)
-            keyword_in_h1_result = check_primary_keyword_in_h1(primary_keyword, h1)
-            keyword_in_headings = check_primary_keyword_in_headings(
-                primary_keyword, headings
-            )
-            keyword_in_first_paragraph = check_primary_in_first_p(
-                primary_keyword, content_text
-             )
+            seo_title_in_h1 = compare_seo_title_h1(meta_title, h1)
+            keyword_in_h1 = check_primary_keyword_in_h1(primary_keyword, h1)
+            keyword_in_headings = check_primary_keyword_in_headings(primary_keyword, headings)
+            keyword_in_first_paragraph = check_primary_in_first_p(primary_keyword, content_text)
+            keyword_density = check_primary_keyword_in_content(primary_keyword, content_text)
+            related_keywords = check_related_keywords(content_text, related_keywords_list)
 
-        with st.spinner("Calculating keyword density..."):
+        with st.spinner("Starting competitors analysis..."):
+            warning_message = ""
+            table_data_competitor1 = ""
+            table_data_competitor2 = ""
+            if url_input1.strip():
+                file_html_competitor1 = get_html_content(url_input1)
+                title_url1 = get_h1(file_html_competitor1)
+                table_data_competitor1 = {
+                    "Item": ["Title"],
+                    "Result": [title_url1],
+                }
+            else:
+                warning_message = "Please enter URL 1"
+
+        with st.spinner("Starting competitors analysis..."):
+            warning_message = ""
+            table_data_competitor1 = ""
+            if url_input1.strip():
+                file_html = get_html_content(url_input1)
+                title_url = get_h1(file_html)
+                table_data_competitor1 = {
+                    "Item": [
+                        "Title",
+                    ],
+                    "Result": [
+                        title_url,
+                    ],
+                }
+            else:
+                warning_message = "Please enter URL"
+            table_data_competitor2 = ""
+            if url_input2.strip():
+                file_html = get_html_content(url_input2)
+                title_url = get_h1(file_html)
+                table_data_competitor2 = {
+                    "Item": [
+                        "Title",
+                    ],
+                    "Result": [
+                        title_url,
+                    ],
+                }
+            else:
+                warning_message = "Please enter URL"
+            
+            table_data_competitor3 = ""
+            if url_input3.strip():
+                file_html = get_html_content(url_input3)
+                title_url = get_h1(file_html)
+                table_data_competitor3 = {
+                    "Item": [
+                        "Title",
+                    ],
+                    "Result": [
+                        title_url,
+                    ],
+                }
+            else:
+                warning_message = "Please enter URL"
+            
+            table_data_competitor4 = ""
+            if url_input4.strip():
+                file_html = get_html_content(url_input4)
+                title_url = get_h1(file_html)
+                table_data_competitor4 = {
+                    "Item": [
+                        "Title",
+                    ],
+                    "Result": [
+                        title_url,
+                    ],
+                }
+            else:
+                warning_message = "Please enter URL"
+            
+        with st.spinner("Presenting the analysis results...."):
             time.sleep(1)
-            keyword_density = check_primary_keyword_in_content(
-                primary_keyword, content_text
-            )
-            related_keywords_result = check_related_keywords(
-                content_text, related_keywords_list
-            )
             table_data = {
                     "Item": [
                         "Content Length",
@@ -153,8 +220,8 @@ if st.button("Analyze"):
                     ],
                     "Result": [
                         article_length,
-                        seo_title_h1_result,
-                        keyword_in_h1_result,
+                        seo_title_in_h1,
+                        keyword_in_h1,
                         keyword_in_headings,
                         keyword_in_first_paragraph,
                         keyword_density,
@@ -191,7 +258,6 @@ if st.button("Analyze"):
             }
             
         # Save results to session state
-        
         st.session_state['results']['h1'] = h1
         st.session_state['results']['url'] = url
         st.session_state['results']['file_html'] = file_html
@@ -202,12 +268,17 @@ if st.button("Analyze"):
         st.session_state['results']['domain_name'] = domain_name
         st.session_state['results']['meta_description'] = meta_description
         st.session_state['results']['disclaimer_message'] = disclaimer_message
-        st.session_state['results']['related_keywords'] = related_keywords_result
+        st.session_state['results']['related_keywords'] = related_keywords
         st.session_state['results']['internal_links_table'] = internal_links_table
         st.session_state['results']['url_input1'] = url_input1
         st.session_state['results']['url_input2'] = url_input2
         st.session_state['results']['url_input3'] = url_input3
         st.session_state['results']['url_input4'] = url_input4
+        st.session_state['results']['table_competitor1'] = table_data_competitor1
+        st.session_state['results']['table_competitor2'] = table_data_competitor2
+        st.session_state['results']['table_competitor3'] = table_data_competitor3
+        st.session_state['results']['table_competitor4'] = table_data_competitor4
+        st.session_state['results']['warning_message'] = warning_message
 
 # Display results using session state
 if 'results' in st.session_state:
@@ -228,6 +299,11 @@ if 'results' in st.session_state:
         url_input2 = results.get('url_input2')
         url_input3 = results.get('url_input3')
         url_input4 = results.get('url_input4')
+        table_data_competitor1 = results.get('table_competitor1')
+        table_data_competitor2 = results.get('table_competitor2')
+        table_data_competitor3 = results.get('table_competitor3')
+        table_data_competitor4 = results.get('table_competitor4')
+        warning_message = results.get('warning_message')
 
         st.header(h1)
         st.write(meta_description)
@@ -259,65 +335,26 @@ if 'results' in st.session_state:
 
             with tab2:
                 st.write("Hello")
-                if 'url_input1' in results:
-                    url_input1 = results['url_input1']
-                    title_url1 = get_h1(url_input1)
-                    description_url1 = get_meta_description(url_input1)
-                    content_url1 = get_content_with_html(url_input1, file_html)
-                    heading_url1 = get_headings(content_url1)
-                    st.write(title_url1)
-                    st.write(url_input1)
-                    st.write(description_url1)
-                    if heading_url1:
-                        for heading in heading_url1:
-                            st.markdown(heading)
+                if table_data_competitor1:
+                    st.table(table_data_competitor1)
                 else:
-                    st.warning("Please enter URL 1")
+                    st.warning(warning_message)
             with tab3:
-                if 'url_input2' in results:
-                    url_input2 = results['url_input2']
-                    title_url2 = get_h1(url_input2)
-                    description_url2 = get_meta_description(url_input2)
-                    content_url2 = get_content_with_html(url_input2, file_html)
-                    heading_url2 = get_headings(content_url2)
-                    st.write(title_url2)
-                    st.write(url_input2)
-                    st.write(description_url2)
-                    if heading_url2:
-                        for heading in heading_url2:
-                            st.markdown(heading)
+                st.write("Hello")
+                if table_data_competitor2:
+                    st.table(table_data_competitor2)
                 else:
-                    st.warning("Please enter URL 2")
+                    st.warning(warning_message)
             with tab4:
-                if 'url_input3' in results:
-                    url_input3 = results['url_input3']
-                    title_url3 = get_h1(url_input3)
-                    description_url3 = get_meta_description(url_input3)
-                    content_url3 = get_content_with_html(url_input3, file_html)
-                    heading_url3 = get_headings(content_url3)
-                    st.write(title_url3)
-                    st.write(url_input3)
-                    st.write(description_url3)
-                    if heading_url3:
-                        for heading in heading_url3:
-                            st.markdown(heading)
+                if table_data_competitor3:
+                    st.table(table_data_competitor3)
                 else:
-                    st.warning("Please enter URL 3")
+                    st.warning(warning_message)
             with tab5:
-                if 'url_input4' in results:
-                    url_input4 = results['url_input4']
-                    title_url4 = get_h1(url_input4)
-                    description_url4 = get_meta_description(url_input4)
-                    content_url4 = get_content_with_html(url_input4, file_html)
-                    heading_url4 = get_headings(content_url4)
-                    st.write(title_url4)
-                    st.write(url_input4)
-                    st.write(description_url4)
-                    if heading_url4:
-                        for heading in heading_url4:
-                            st.markdown(heading)
+                if table_data_competitor4:
+                    st.table(table_data_competitor4)
                 else:
-                    st.warning("Please enter URL 4")
+                    st.warning(warning_message)
 
         # Related Keywords Analysis
         with st.expander("Related Keywords"):
