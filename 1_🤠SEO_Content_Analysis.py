@@ -133,20 +133,8 @@ if st.button("Analyze"):
             related_keywords = check_related_keywords(content_text, related_keywords_list)
 
         with st.spinner("Starting competitors analysis..."):
-            warning_message = ""
-            table_data_competitor1 = ""
-            table_data_competitor2 = ""
-            if url_input1.strip():
-                file_html_competitor1 = get_html_content(url_input1)
-                title_url1 = get_h1(file_html_competitor1)
-                table_data_competitor1 = {
-                    "Item": ["Title"],
-                    "Result": [title_url1],
-                }
-            else:
-                warning_message = "Please enter URL 1"
+            
 
-        with st.spinner("Starting competitors analysis..."):
             warning_message = ""
             table_data_competitor1 = ""
             if url_input1.strip():
