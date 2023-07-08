@@ -12,4 +12,5 @@ CONTENT_AREA = {
     "mobbi": "article-details-content",
     "otoklix": "post-content",
     "qoala": "post-content",
+    "zenius": "entry_content",
 }
