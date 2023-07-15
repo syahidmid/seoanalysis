@@ -49,7 +49,7 @@ class PromptGenerator:
     def generate_prompt_text(self, topic, length, style, reader_greeting, primary_keyword, outline, references):
         prompt = f"Tolong buatkan artikel tentang {topic} dengan primary keyword {primary_keyword} sepanjang {length} kata."
         prompt += f"Gunakan gaya bahasa {style} dengan kata '{reader_greeting}' untuk menyebut pembaca. Perhatikan penempatan kata kunci, wajib disebut di awal kalimat dan body artikel."
-        prompt += f"Gunakan referensi di bawah ini sebagai sumber pembuatan artikel tetapi jangan sampai duplikat. Kamu bisa ubah pilihan kata dan struktur kalimat dan tambahkan informasi relevan yang valid."
+        prompt += f"Baca dan pahami referensi di bawah ini, ambil intisarinya dan jadikan artikel yang benar-benar baru dengan diksi dan struktur kalimat yang sama sekali berbeda."
         prompt += f"\nPrimary keyword: {primary_keyword}."
         prompt += f"\nOutline: {outline}."
         prompt += f"\nReferences: {references}."
