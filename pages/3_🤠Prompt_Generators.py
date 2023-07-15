@@ -45,7 +45,7 @@ class PromptGenerator:
     def generate_prompt_text(self, topic, length, style, reader_greeting, primary_keyword, outline):
         prompt = f"Tolong buatkan artikel tentang {topic} dengan primary keyword {primary_keyword} sepanjang {length} kata."
         prompt += f"Gunakan gaya bahasa {style} dan {reader_greeting} untuk menyebut pembaca. Perhatikan penempatan kata kunci, wajib disebut di awal kalimat dan body artikel."
-        prompt += f"\nKata kunci utama: {primary_keyword}."
+        prompt += f"\nPrimary keyword: {primary_keyword}."
         prompt += f"\nOutline: {outline}."
         return prompt
 
