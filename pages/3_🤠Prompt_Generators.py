@@ -20,7 +20,7 @@ class PromptGenerator:
 
     def generate_prompt(self):
         topic = st.text_input("Topic:", value=self.session_state['topic'], key=f"{self.prompt_name}_topic")
-        length = st.number_input("Length:", value=self.session_state['length'], key=f"{self.prompt_name}_length")
+        length = st.slider("Length:", min_value=0, max_value=2000, value=self.session_state.get('length', 500), key=f"{self.prompt_name}_length")
         style = st.selectbox("Style:", options=["Casual", "Formal"], index=0 if self.session_state['style'] == 'Casual' else 1, key=f"{self.prompt_name}_style")
         reader_greeting = st.selectbox("Sapaan ke pembaca:", options=["Kamu", "Anda"], index=0 if self.session_state['reader_greeting'] == 'Kamu' else 1, key=f"{self.prompt_name}_reader_greeting")
         primary_keyword = st.text_input("Primary keyword:", value=self.session_state['primary_keyword'], key=f"{self.prompt_name}_primary_keyword")
@@ -44,7 +44,7 @@ class PromptGenerator:
 
     def generate_prompt_text(self, topic, length, style, reader_greeting, primary_keyword, outline):
         prompt = f"Tolong buatkan artikel tentang {topic} dengan primary keyword {primary_keyword} sepanjang {length} kata."
-        prompt += f"Gunakan gaya bahasa {style} dan {reader_greeting} untuk menyebut pembaca. Perhatikan penempatan kata kunci, wajib disebut di awal kalimat dan body artikel secukupnya."
+        prompt += f"Gunakan gaya bahasa {style} dan {reader_greeting} untuk menyebut pembaca. Perhatikan penempatan kata kunci, wajib disebut di awal kalimat dan body artikel."
         prompt += f"\nKata kunci utama: {primary_keyword}."
         prompt += f"\nOutline: {outline}."
         return prompt
