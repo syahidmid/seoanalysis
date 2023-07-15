@@ -45,7 +45,7 @@ st.set_page_config(
 if 'results' not in st.session_state:
     st.session_state['results'] = {}
 
-st.title("SEO Content Analysis 🤠")
+st.title("SEO Content Analysiss🤠")
 st.write(
     "This app performs an SEO analysis of a website by checking its on-page SEO factors and analyzing its primary and related keywords."
 )
@@ -281,7 +281,7 @@ if 'results' in st.session_state:
         related_keywords_result = results.get('related_keywords')
         internal_links_table = results.get('internal_links_table')
         meta_table = results.get('meta_table')
-        content_text = results.get('content_text')
+        content_html = results.get('content_html')
         file_html = results.get('file_html')
         url_input1 = results.get('url_input1')
         url_input2 = results.get('url_input2')
@@ -352,7 +352,9 @@ if 'results' in st.session_state:
         with st.expander("Internal Links"):
             st.subheader(":blue[Internal Links Analysis]")
             st.table(internal_links_table)
-        # Content
+        # Content Text
         with st.expander("Content"):
             st.subheader(":blue[Content]")
             st.write(content_text)
+       
+        
