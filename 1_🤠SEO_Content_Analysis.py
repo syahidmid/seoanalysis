@@ -179,7 +179,7 @@ if st.button("Analyze"):
                 }
             else:
                 warning_message = "Please enter URL"
-            
+           
             table_data_competitor4 = ""
             if url_input4.strip():
                 file_html = get_html_content(url_input4)
