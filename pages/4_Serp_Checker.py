@@ -71,17 +71,9 @@ def main():
             
             # Display the results in a table
             st.write("SERP Results:")
-            st.dataframe(results_df)
-            
-            # Show balloons when the search is completed
+            st.dataframe(results_df)  
             st.balloons()
 
-    # Download CSV button
-    if not results_df.empty and st.button("Download CSV"):
-        csv_data = results_df.to_csv(index=False)
-        b64 = base64.b64encode(csv_data.encode()).decode()
-        href = f'<a href="data:file/csv;base64,{b64}" download="serp_results.csv">Download CSV</a>'
-        st.markdown(href, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
