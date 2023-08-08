@@ -55,8 +55,8 @@ def main():
         country = st.text_input("Country code (e.g., US, CA, DE, AU)", value="ID", max_chars=2)
         device = st.text_input("Device (e.g., mobile, dekstop) ", value="Mobile")
     
-    df_results = pd.DataFrame(columns=["Keyword", "Position", "URL"])
-    
+    results_df = pd.DataFrame(columns=["Keyword", "Position", "URL"])
+   
     # Button to start the search
     if st.button("Start Search"):
         with st.spinner("Searching..."):
@@ -67,22 +67,23 @@ def main():
                 original_url = get_url(results, url_to_check)
                 
                 # Append the result to the DataFrame
-                df_results = df_results.append({"Keyword": keyword, "Position": position, "URL": original_url}, ignore_index=True)
+                results_df = results_df.append({"Keyword": keyword, "Position": position, "URL": original_url}, ignore_index=True)
             
             # Display the results in a table
             st.write("SERP Results:")
-            st.dataframe(df_results)
+            st.dataframe(results_df)
             
             # Show balloons when the search is completed
             st.balloons()
 
     # Download CSV button
-    if not df_results.empty and st.button("Download CSV"):
-        csv_data = df_results.to_csv(index=False)
+    if not results_df.empty and st.button("Download CSV"):
+        csv_data = results_df.to_csv(index=False)
         b64 = base64.b64encode(csv_data.encode()).decode()
         href = f'<a href="data:file/csv;base64,{b64}" download="serp_results.csv">Download CSV</a>'
         st.markdown(href, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
+
 
