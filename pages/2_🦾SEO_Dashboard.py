@@ -5,7 +5,7 @@ import shutil
 import numpy as np
 
 
-st.title("SEO Dashboard")
+st.title("SEO Dashboards")
 
 # Create the new directory if it doesn't exist
 folder_path = "./new report"

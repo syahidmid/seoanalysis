@@ -282,6 +282,7 @@ if 'results' in st.session_state:
         internal_links_table = results.get('internal_links_table')
         meta_table = results.get('meta_table')
         content_html = results.get('content_html')
+        content_text = results.get('content_text')
         file_html = results.get('file_html')
         url_input1 = results.get('url_input1')
         url_input2 = results.get('url_input2')
