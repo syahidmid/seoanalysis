@@ -45,7 +45,7 @@ st.set_page_config(
 if 'results' not in st.session_state:
     st.session_state['results'] = {}
 
-st.title("SEO Content Analysiss🤠")
+st.title("SEO Content Analysis🤠")
 st.write(
     "This app performs an SEO analysis of a website by checking its on-page SEO factors and analyzing its primary and related keywords."
 )
