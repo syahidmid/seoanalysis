@@ -26,7 +26,6 @@ if 'seo_results_df' not in st.session_state:
 
 # Judul aplikasi
 st.title("Bulk Audit")
-
 # Pengaturan
 with st.expander("Pengaturan"):
     show_title_length = st.checkbox("Tampilkan Panjang Judul")
@@ -74,12 +73,8 @@ else:
         st.warning("Silakan unggah file CSV terlebih dahulu.")
         st.stop()
 
-
-# ...
-# ...
-
 if st.button("Scrape dan Analisis"):
-    # Inisialisasi list data
+    # Inisialisasi dua list data
     result_content = []
     result_internal_links = []
 
@@ -95,21 +90,17 @@ if st.button("Scrape dan Analisis"):
             file_html = get_html_content(url)  # Menggunakan fungsi dari scrapers
             meta_title = get_meta_title(file_html)  # Menggunakan fungsi dari scrapers
             meta_description = get_meta_description(file_html)
-            meta_title_lenght = word_counter(meta_title)
-            meta_desc_lenght = character_counter(meta_description)
+            meta_title_length = word_counter(meta_title)
+            meta_desc_length = character_counter(meta_description)
             headings = get_headings(file_html)
 
         # Buat entri untuk URL dan Status Code (dan Judul jika status code adalah 200)
         data_content_r = {'URL': url, 'Status Code': status_code}
         if meta_title:
-            data_content_r = {'URL': url, 
-            'Status Code':status_code,
-            'Meta Title': meta_title,
-            'Meta Description': meta_description,
-            'Title Lenght': meta_title_lenght,
-            'Meta Desc Lenght': meta_desc_lenght}
-
-        data_internal_links_r = {'Word count': meta_title,}
+            data_content_r['Meta Title'] = meta_title
+            data_content_r['Meta Description'] = meta_description
+            data_content_r['Title Length'] = meta_title_length
+            data_content_r['Meta Desc Length'] = meta_desc_length
 
         # Analisis dengan check_primary_keyword_in_headings jika URL dan primary_keyword ada
         if primary_keyword and status_code == 200:
@@ -119,19 +110,32 @@ if st.button("Scrape dan Analisis"):
 
         # Menambahkan hasil scraping dan analisis ke list data
         result_content.append(data_content_r)
-        result_internal_links.append(data_internal_links_r)
 
     # Membuat dataframe dari data
     df_content = pd.DataFrame(result_content)
-    df_links = pd.DataFrame(result_internal_links)
 
     # Simpan dataframe ke session state
     st.session_state.seo_df_content = df_content
-    st.session_state.seo_df_links = df_links
 
     # Tampilkan tabel hasil scraping jika ada data
-    if st.session_state.seo_results_df is not None:
+    if st.session_state.seo_df_content is not None:
         with st.expander('Content'):
             st.dataframe(st.session_state.seo_df_content)
+        
+    # --- Proses Scraping Data Internal Links ---
+
+    # ... (sama seperti proses scraping konten, hanya berbeda jenis data)
+
+    # Menambahkan hasil scraping data internal links ke list data
+    # (gunakan result_internal_links dan data_internal_links_r seperti sebelumnya)
+
+    # Membuat dataframe dari data internal links
+    df_links = pd.DataFrame(result_internal_links)
+
+    # Simpan dataframe data internal links ke session state
+    st.session_state.seo_df_links = df_links
+
+    # Tampilkan tabel hasil scraping data internal links jika ada data
+    if st.session_state.seo_df_links is not None:
         with st.expander('Internal Links'):
             st.dataframe(st.session_state.seo_df_links)
