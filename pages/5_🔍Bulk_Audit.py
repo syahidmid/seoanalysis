@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from scrapers.scrape import (
     is_valid_url,
+    get_status_code,
     get_html_content,
     get_meta_title,
     get_meta_description,
@@ -74,47 +75,63 @@ else:
         st.stop()
 
 
-# Inisialisasi list data
-data = []
+# ...
+# ...
+
 if st.button("Scrape dan Analisis"):
     # Inisialisasi list data
-    data = []
+    result_content = []
+    result_internal_links = []
 
     # Scraping judul dari setiap URL dan menghitung panjang judul
     for url in urls:
-        # Mengambil konten HTML dan judul
-        file_html = get_html_content(url)  # Menggunakan fungsi dari scrapers
-        meta_title = get_meta_title(file_html)  # Menggunakan fungsi dari scrapers
-        meta_description = get_meta_description(file_html)
-        meta_title_lenght = word_counter(meta_title)
-        meta_desc_lenght = character_counter(meta_description)
-        headings = get_headings(file_html)
+        # Mengecek status code situs web
+        status_code = get_status_code(url)
 
-        entry = {'URL': url, 
-        'Meta Title': meta_title,
-        'Meta Description': meta_description,
-        'Title Lenght': meta_title_lenght,
-        'Meta Desc Lenght': meta_desc_lenght}
+        # Mengambil konten HTML dan judul jika status code adalah 200
+        file_html = None
+        meta_title = None
+        if status_code == 200:
+            file_html = get_html_content(url)  # Menggunakan fungsi dari scrapers
+            meta_title = get_meta_title(file_html)  # Menggunakan fungsi dari scrapers
+            meta_description = get_meta_description(file_html)
+            meta_title_lenght = word_counter(meta_title)
+            meta_desc_lenght = character_counter(meta_description)
+            headings = get_headings(file_html)
+
+        # Buat entri untuk URL dan Status Code (dan Judul jika status code adalah 200)
+        data_content_r = {'URL': url, 'Status Code': status_code}
+        if meta_title:
+            data_content_r = {'URL': url, 
+            'Status Code':status_code,
+            'Meta Title': meta_title,
+            'Meta Description': meta_description,
+            'Title Lenght': meta_title_lenght,
+            'Meta Desc Lenght': meta_desc_lenght}
+
+        data_internal_links_r = {'Word count': meta_title,}
 
         # Analisis dengan check_primary_keyword_in_headings jika URL dan primary_keyword ada
-        if primary_keyword:
+        if primary_keyword and status_code == 200:
             headings = get_headings(file_html)  # Mengambil headings dari HTML
             keyword_in_headings = check_primary_keyword_in_headings(primary_keyword, headings)
-            entry['Keyword di Headings'] = keyword_in_headings  # Simpan hasil analisis dalam entry
-        if show_title_length:
-            title_len = word_counter(meta_title)
-            entry['Panjang Judul'] = title_len
-            
+            data_content_r['Keyword di Headings'] = keyword_in_headings  # Simpan hasil analisis dalam entry
+
         # Menambahkan hasil scraping dan analisis ke list data
-        data.append(entry)
+        result_content.append(data_content_r)
+        result_internal_links.append(data_internal_links_r)
 
     # Membuat dataframe dari data
-    df = pd.DataFrame(data)
+    df_content = pd.DataFrame(result_content)
+    df_links = pd.DataFrame(result_internal_links)
 
     # Simpan dataframe ke session state
-    st.session_state.seo_results_df = df
+    st.session_state.seo_df_content = df_content
+    st.session_state.seo_df_links = df_links
 
-# Tampilkan tabel hasil scraping jika ada data
-if st.session_state.seo_results_df is not None:
-   with st.expander('Content'):
-        st.dataframe(st.session_state.seo_results_df)
+    # Tampilkan tabel hasil scraping jika ada data
+    if st.session_state.seo_results_df is not None:
+        with st.expander('Content'):
+            st.dataframe(st.session_state.seo_df_content)
+        with st.expander('Internal Links'):
+            st.dataframe(st.session_state.seo_df_links)
