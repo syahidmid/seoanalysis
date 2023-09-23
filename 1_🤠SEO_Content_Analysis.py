@@ -120,7 +120,9 @@ if st.button("Analyze"):
             first_parapraph = get_first_parapraph(content_html)
 
             internal_links_data = get_internal_links(url, content_html)
-            status_codes = [get_status_code(link) for link, _, _ in internal_links_data]
+            # Membuat daftar status_code dengan status kode untuk setiap URL di internal_links_data
+            
+
 
             data_internal_links = []
             # Iterasi melalui internal links dan anchor text
@@ -134,7 +136,7 @@ if st.button("Analyze"):
             if full_report:
                 # Jika full report, gabungkan data_internal_links dengan status_codes
                 internal_links_table = pd.DataFrame(data_internal_links)
-                internal_links_table["Status Code"] = status_codes
+               
             else:
                 # Jika tidak full report, cukup gunakan data_internal_links
                 internal_links_table = pd.DataFrame(data_internal_links, columns=["Internal Link", "Anchor Text"])
