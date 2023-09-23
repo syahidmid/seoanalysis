@@ -1,7 +1,7 @@
 import streamlit as st
 import time
 import sys
-import pyperclip
+import clipboard
 import pandas as pd
 from urllib.parse import urlparse
 from scrapers.scrape import (
@@ -345,7 +345,7 @@ if 'results' in st.session_state:
         with st.expander("Meta Properties", expanded=False):
             st.table(meta_table)
 
-        with st.expander("Outline", expanded=True):
+        with st.expander("Outline", expanded=False):
             tab1, tab2, tab3, tab4, tab5 = st.tabs(
                 [
                     "My Article",
@@ -401,7 +401,7 @@ if 'results' in st.session_state:
                 # Mengambil data URL dari internal_links_table
                 urls = internal_links_table['Link'].tolist()
                 urls_str = '\n'.join(urls)
-                pyperclip.copy(urls_str)
+                clipboard.copy(urls_str)
                 st.success("URLs copied to clipboard!")
             st.table(internal_links_table)
         # Content Text
