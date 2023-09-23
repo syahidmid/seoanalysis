@@ -22,7 +22,7 @@ from scrapers.scrape import (
     get_headings,
     get_first_parapraph,
 )
-from analyzers.links import get_internal_links
+from analyzers.links import get_internal_links, utm_cleaner, link_contains_hash
 from analyzers.count import (
     word_counter,
     character_counter,
@@ -127,22 +127,26 @@ if st.button("Analyze"):
             data_internal_links = []
             # Iterasi melalui internal links dan anchor text
             for link, anchor_text in internal_links_data:
-                entry = {
-                    "Link": link,
-                    "Anchor Text": anchor_text
-                }
-                data_internal_links.append(entry)
+                cleaned_link = utm_cleaner(link)
+                if not link_contains_hash(cleaned_link):
+                    entry = {
+                        "Link": cleaned_link,
+                        "Anchor Text": anchor_text
+                    }
+                    data_internal_links.append(entry)
 
             data_internal_links_with_status = []
             # Iterasi melalui internal links dan anchor text
             for link, anchor_text in internal_links_data:
                 status_code = get_status_code(link)
-                entry = {
-                    "Link": link,
-                    "Anchor Text": anchor_text,
-                    "Status Code": status_code
-                }
-                data_internal_links_with_status.append(entry)
+                cleaned_link = utm_cleaner(link)
+                if not link_contains_hash(cleaned_link):
+                    entry = {
+                        "Link": cleaned_link,
+                        "Anchor Text": anchor_text,
+                        "Status Code": status_code
+                    }
+                    data_internal_links_with_status.append(entry)
 
 
             if full_report:
@@ -387,6 +391,10 @@ if 'results' in st.session_state:
         # Internal Links Analysis
         with st.expander("Internal Links"):
             st.subheader(":blue[Internal Links Analysis]")
+            # Menampilkan informasi kepada pengguna
+            """
+            ✂️ We present data that has been cleaned using `utm_cleaner()` and exclude `link_contains_hash()`. But don't worry, we have executed the `status_code()` on all original URLs.
+            """
             st.table(internal_links_table)
         # Content Text
         with st.expander("Content"):

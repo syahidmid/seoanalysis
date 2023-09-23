@@ -8,13 +8,15 @@ from bs4 import BeautifulSoup
 from scrapers.scrape import get_content_with_html, get_domain
 
 
-def clean_url(url):
+def utm_cleaner(url):
     parsed_url = urlparse(url)
     cleaned_query = "&".join(
         [q for q in parsed_url.query.split("&") if not q.startswith("utm_")]
     )
     return parsed_url._replace(query=cleaned_query).geturl()
-
+def link_contains_hash(url):
+    # Memeriksa apakah URL mengandung karakter '#'
+    return "#" in url
 
 def get_internal_links(url, content_html):
     soup = BeautifulSoup(content_html, "html.parser")
