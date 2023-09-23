@@ -4,6 +4,7 @@ from scrapers.scrape import (
     is_valid_url,
     get_status_code,
     get_html_content,
+    get_content,
     get_meta_title,
     get_meta_description,
     get_headings,
@@ -88,10 +89,12 @@ if st.button("Scrape dan Analisis"):
         meta_title = None
         if status_code == 200:
             file_html = get_html_content(url)  # Menggunakan fungsi dari scrapers
-            meta_title = get_meta_title(file_html)  # Menggunakan fungsi dari scrapers
+            meta_title = get_meta_title(file_html)  
             meta_description = get_meta_description(file_html)
+            content_text = get_content(url,file_html)
             meta_title_length = word_counter(meta_title)
             meta_desc_length = character_counter(meta_description)
+            content_length = word_counter(content_text)
             headings = get_headings(file_html)
 
         # Buat entri untuk URL dan Status Code (dan Judul jika status code adalah 200)
@@ -101,6 +104,7 @@ if st.button("Scrape dan Analisis"):
             data_content_r['Meta Description'] = meta_description
             data_content_r['Title Length'] = meta_title_length
             data_content_r['Meta Desc Length'] = meta_desc_length
+            data_content_r['Content Length'] = content_length
 
         # Analisis dengan check_primary_keyword_in_headings jika URL dan primary_keyword ada
         if primary_keyword and status_code == 200:
@@ -113,7 +117,6 @@ if st.button("Scrape dan Analisis"):
 
     # Membuat dataframe dari data
     df_content = pd.DataFrame(result_content)
-
     # Simpan dataframe ke session state
     st.session_state.seo_df_content = df_content
 

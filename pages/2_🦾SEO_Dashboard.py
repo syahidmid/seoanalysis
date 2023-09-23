@@ -1,120 +1,162 @@
 import streamlit as st
 import pandas as pd
-from scrapers.scrape import (
-    is_valid_url,
-    get_html_content,
-    get_meta_title,
-    get_meta_description,
-    get_headings,
-)
-from analyzers.keywords import (
-    compare_seo_title_h1,
-    check_related_keywords,
-    check_primary_keyword_in_h1,
-    check_primary_in_first_p,
-    check_primary_keyword_in_content,
-    check_primary_keyword_in_headings,
-)
-from analyzers.count import (
-    word_counter,
-    character_counter,
-)
-# Initialize session state
-if 'seo_results_df' not in st.session_state:
-    st.session_state['seo_results_df'] = None
+import os
+import shutil
+import numpy as np
 
-# Judul aplikasi
-st.title("Bulk Audit")
 
-# Pengaturan
-with st.expander("Pengaturan"):
-    show_title_length = st.checkbox("Tampilkan Panjang Judul")
+st.title("SEO Dashboard")
 
-# Pilihan input URL
-input_option = st.selectbox("Pilih metode input URL:", ["Text Area", "Upload File CSV", "URL dan Kata Kunci"])
-if input_option == "Text Area":
-    # Input URL dari pengguna melalui text area
-    urls = st.text_area("Masukkan URL (pisahkan dengan Enter)", height=200)
-    urls = urls.split('\n')
-    primary_keyword = ""  # Kosongkan primary_keyword
-elif input_option == "Upload File CSV":
-    # Unggah file CSV
-    uploaded_file = st.file_uploader("Unggah file CSV", type=["csv"])
-    if uploaded_file is not None:
-        urls_df = pd.read_csv(uploaded_file)
-        # Periksa apakah kolom "URL" ada dalam DataFrame
-        if "URL" in urls_df.columns:
-            urls = urls_df["URL"].tolist()
-            primary_keyword = ""  # Kosongkan primary_keyword
-        else:
-            st.warning("File CSV tidak memiliki kolom 'URL'.")
-            st.stop()
+# Create the new directory if it doesn't exist
+folder_path = "./new report"
+if not os.path.exists(folder_path):
+    os.makedirs(folder_path)
+
+# Initialize all_data and media_o as empty dataframes
+all_data = pd.DataFrame()
+media_o = pd.DataFrame()
+
+# Create a sidebar for file upload
+uploaded_file = st.file_uploader("Choose a file", key="1")
+
+if uploaded_file is not None:
+    # Get the file name
+    file_name = uploaded_file.name
+
+    # Save the uploaded file to the new directory
+    with open(os.path.join(folder_path, file_name), "wb") as f:
+        f.write(uploaded_file.getbuffer())
+
+    # Read the media o file from the new directory
+    media_o = pd.read_csv(os.path.join(folder_path, file_name))
+
+    # Check if 'URL' and 'Keyword' columns are in the dataframe
+    if "URL" not in media_o.columns or "Keyword" not in media_o.columns:
+        st.write("Error: Columns 'URL' and/or 'Keyword' not found in the dataframe.")
     else:
-        st.warning("Silakan unggah file CSV terlebih dahulu.")
-        st.stop()
-else:
-    # Input URL dan Kata Kunci dari pengguna
-    primary_keyword = ""
-    uploaded_file = st.file_uploader("Unggah file CSV (harus berisi dua kolom: URL, Primary Keyword)", type=["csv"])
-    if uploaded_file is not None:
-        urls_df = pd.read_csv(uploaded_file)
-        
-        # Simpan nama kolom dalam bentuk array
-        column_names = urls_df.columns.tolist()
+        # Create new column
+        media_o["search_key"] = media_o["URL"] + " | " + media_o["Keyword"]
 
-        # Periksa apakah kolom "URL" dan "Primary Keyword" ada dalam DataFrame
-        if "URL" in column_names and "Primary Keyword" in column_names:
-            urls = urls_df["URL"].tolist()
-            primary_keywords = urls_df["Primary Keyword"].tolist()
-        else:
-            st.warning("File CSV harus memiliki dua kolom: URL dan Primary Keyword.")
-            st.stop()
-    else:
-        st.warning("Silakan unggah file CSV terlebih dahulu.")
-        st.stop()
+        # Add new columns
+        media_o["Current Position"] = ""
+        media_o["Keyword found in SERPRobot"] = ""
+
+        # Save to a new CSV file in the new directory
+        new_file_path = os.path.join(folder_path, "Media O.csv")
+        media_o.to_csv(new_file_path, index=False)
+
+        # Display the dataframe as a table in the Streamlit app
+        items_per_page = 10
+        n_pages = len(media_o) // items_per_page
+        if len(media_o) % items_per_page > 0:
+            n_pages += 1
+        page_number = st.number_input(
+            label="Page Number", min_value=1, max_value=n_pages, step=1
+        )
+        start_index = items_per_page * (page_number - 1)
+        end_index = start_index + items_per_page
+
+        # Display the dataframe as a table in the Streamlit app
+        st.dataframe(
+            media_o[start_index:end_index].style.set_properties(
+                **{"text-align": "left"}
+            )
+        )
+
+        # Create a download button for the new file
+        with open(new_file_path, "rb") as f:
+            bytes_data = f.read()
+        st.download_button(
+            label="Download Media O.csv",
+            data=bytes_data,
+            file_name="Media O.csv",
+            mime="text/csv",
+        )
 
 
-# Inisialisasi list data
-data = []
-if st.button("Scrape dan Analisis"):
-    # Inisialisasi list data
-    data = []
+# Create a sidebar for multiple file upload
+with st.expander("Upload SERP Robot"):
+    uploaded_files = st.file_uploader(
+        "Choose files", accept_multiple_files=True, key="2"
+    )
 
-    # Scraping judul dari setiap URL dan menghitung panjang judul
-    for url in urls:
-        # Mengambil konten HTML dan judul
-        file_html = get_html_content(url)  # Menggunakan fungsi dari scrapers
-        meta_title = get_meta_title(file_html)  # Menggunakan fungsi dari scrapers
-        meta_description = get_meta_description(file_html)
-        meta_title_lenght = word_counter(meta_title)
-        meta_desc_lenght = character_counter(meta_description)
-        headings = get_headings(file_html)
+    if uploaded_files:
+        # Get the file names
+        file_names = [uploaded_file.name for uploaded_file in uploaded_files]
 
-        entry = {'URL': url, 
-        'Meta Title': meta_title,
-        'Meta Description': meta_description,
-        'Title Lenght': meta_title_lenght,
-        'Meta Desc Lenght': meta_desc_lenght}
+        # Save the uploaded files to the new directory
+        for uploaded_file, file_name in zip(uploaded_files, file_names):
+            with open(os.path.join(folder_path, file_name), "wb") as f:
+                f.write(uploaded_file.getbuffer())
 
-        # Analisis dengan check_primary_keyword_in_headings jika URL dan primary_keyword ada
-        if primary_keyword:
-            headings = get_headings(file_html)  # Mengambil headings dari HTML
-            keyword_in_headings = check_primary_keyword_in_headings(primary_keyword, headings)
-            entry['Keyword di Headings'] = keyword_in_headings  # Simpan hasil analisis dalam entry
-        if show_title_length:
-            title_len = word_counter(meta_title)
-            entry['Panjang Judul'] = title_len
-            
-        # Menambahkan hasil scraping dan analisis ke list data
-        data.append(entry)
+        # Read each file from the new directory, add 'Tag' column with file name, and concatenate all files
+        all_data = pd.concat(
+            [
+                pd.read_csv(os.path.join(folder_path, name)).assign(Tag=name)
+                for name in file_names
+            ]
+        )
 
-    # Membuat dataframe dari data
-    df = pd.DataFrame(data)
+        # Perform data cleaning
+        all_data["Found SERP"] = all_data["Found SERP"].str.replace(
+            "https://", ""
+        )  # Cleaning 1
+        all_data["Found SERP"] = (
+            all_data["Found SERP"].str.split("#").str[0]
+        )  # Cleaning 2
 
-    # Simpan dataframe ke session state
-    st.session_state.seo_results_df = df
+        # Create new column
+        all_data["search_key"] = (
+            all_data["Found SERP"]
+            + " | "
+            + all_data["Keyword for: (lifepal.co.id/media)"]
+        )
 
-# Tampilkan tabel hasil scraping jika ada data
-if st.session_state.seo_results_df is not None:
-   with st.expander('Content'):
-        st.dataframe(st.session_state.seo_results_df)
+        # Save to a new CSV file in the new directory
+        new_file_path = os.path.join(folder_path, "SERP All Data.csv")
+        all_data.to_csv(new_file_path, index=False)
+
+        # Display the dataframe as a table in the Streamlit app
+        st.title("SEO Dashboard")
+        st.dataframe(all_data)
+
+        # Create a download button for the new file
+        with open(new_file_path, "rb") as f:
+            bytes_data = f.read()
+        st.download_button(
+            label="Download SERP All Data.csv",
+            data=bytes_data,
+            file_name="SERP All Data.csv",
+            mime="text/csv",
+        )
+        st.write(
+            "All files successfully combined, cleaned, and new column 'search_key' added. The updated data is saved to the 'new report' directory as 'SERP All Data.csv'"
+        )
+
+        if st.button("Update to Media O", key="update_media_o"):
+            media_o = pd.read_csv(os.path.join(folder_path, "Media O.csv"))
+            serp_data = pd.read_csv(os.path.join(folder_path, "SERP All Data.csv"))
+
+            # Create a list of keywords from Media O
+            media_o_keywords = media_o["Keyword"].tolist()
+
+            # Perform vlookup and update "Keyword found in SERPRobot" column
+            media_o["Keyword found in SERPRobot"] = (
+                media_o["Keyword"]
+                .isin(serp_data["Keyword for: (lifepal.co.id/media)"])
+                .map({True: "True", False: "False"})
+            )
+
+            media_o.to_csv(os.path.join(folder_path, "Media O.csv"), index=False)
+
+            # Create a download button for the updated file
+            with open(os.path.join(folder_path, "Media O.csv"), "rb") as f:
+                bytes_data = f.read()
+            st.download_button(
+                label="Download Updated Media O.csv",
+                data=bytes_data,
+                file_name="Media O.csv",
+                mime="text/csv",
+            )
+
+            st.write("Data updated successfully.")

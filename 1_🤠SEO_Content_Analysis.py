@@ -118,8 +118,30 @@ if st.button("Analyze"):
             h1 = get_h1(file_html)
             headings = get_headings(content_html)
             first_parapraph = get_first_parapraph(content_html)
-            internal_links_table = get_internal_links(url, content_html, full_report)
 
+            internal_links_data = get_internal_links(url, content_html)
+            status_codes = [get_status_code(link) for link, _, _ in internal_links_data]
+
+            data_internal_links = []
+            # Iterasi melalui internal links dan anchor text
+            for link, anchor_text in internal_links_data:
+                entry = {
+                    "Link": link,
+                    "Anchor Text": anchor_text
+                }
+                data_internal_links.append(entry)
+
+            if full_report:
+                # Jika full report, gabungkan data_internal_links dengan status_codes
+                internal_links_table = pd.DataFrame(data_internal_links)
+                internal_links_table["Status Code"] = status_codes
+            else:
+                # Jika tidak full report, cukup gunakan data_internal_links
+                internal_links_table = pd.DataFrame(data_internal_links, columns=["Internal Link", "Anchor Text"])
+
+
+
+           
         with st.spinner("Starting content analysis..."):
             time.sleep(1)
             article_length = word_counter(content_text)
