@@ -148,7 +148,7 @@ if st.button("Analyze"):
                         "Status Code": status_code
                     }
                     data_internal_links_with_status.append(entry)
-            
+           
 
             if full_report:
                 # Jika full report, gabungkan data_internal_links dengan status_codes
@@ -396,13 +396,13 @@ if 'results' in st.session_state:
             """
             ✂️ We present data that has been cleaned using `utm_cleaner()` and exclude `link_contains_hash()`. But don't worry, we have executed the `status_code()` on all original URLs.
             """
-            
             if st.button("Copy URLs"):
                 # Mengambil data URL dari internal_links_table
                 urls = internal_links_table['Link'].tolist()
                 urls_str = '\n'.join(urls)
                 clipboard.copy(urls_str)
                 st.success("URLs copied to clipboard!")
+                
             st.table(internal_links_table)
         # Content Text
         with st.expander("Content"):
