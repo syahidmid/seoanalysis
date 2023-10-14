@@ -394,19 +394,8 @@ if 'results' in st.session_state:
             # Menampilkan informasi kepada pengguna
             """
             ✂️ We present data that has been cleaned using `utm_cleaner()` and exclude `link_contains_hash()`. But don't worry, we have executed the `status_code()` on all original URLs.
-            """
-
-            
+            """ 
             st.table(internal_links_table)
-            if st.button("Export to CSV"):
-                # Menyediakan nama file CSV yang akan disimpan
-                csv_filename = "internal_links_table.csv"
-                
-                # Menyimpan DataFrame ke dalam file CSV
-                internal_links_table.to_csv(csv_filename, index=False)
-                
-                # Menampilkan pesan bahwa file CSV telah di-export
-                st.write(f"DataFrame telah di-export ke file CSV: {csv_filename}")
         # Content Text
         with st.expander("Content"):
             st.subheader(":blue[Content]")
