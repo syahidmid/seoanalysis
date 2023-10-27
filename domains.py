@@ -8,7 +8,7 @@ CONTENT_AREA = {
     "gridoto": "read__article",
     "idntimes": "content-post-description full",
     "kompas": "read__header col-offset-fluid clearfix",
-    "lifepal": "SinglePost_post__content__3RMzn",
+    "lifepal": "TemplatePost_brandTemplate_content_wrapper__1W-KE",
     "mobbi": "article-details-content",
     "otoklix": "post-content",
     "qoala": "post-content",

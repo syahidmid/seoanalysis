@@ -214,6 +214,9 @@ def get_language(html_content):
         return f"Unable to get language: {str(e)}"
 
 
+
+
+
 def get_content(url, html_content):
     """Get the text content of a webpage without HTML elements"""
     try:

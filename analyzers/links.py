@@ -36,6 +36,24 @@ def get_internal_links(url, content_html):
 
     return internal_links
 
+def find_duplicate_links(internal_links):
+    # Buat sebuah set kosong untuk menyimpan URL tautan yang sudah ditemukan
+    seen_links = set()
+    
+    # Buat daftar kosong untuk menyimpan tautan ganda
+    duplicate_links = []
+    
+    for link_tuple in internal_links:
+        url = link_tuple[0]  # Ambil URL dari tupel
+        
+        # Periksa apakah URL sudah pernah ditemukan sebelumnya
+        if url in seen_links:
+            duplicate_links.append(link_tuple)
+        else:
+            seen_links.add(url)  # Tambahkan URL ke set seen_links
+    
+    return duplicate_links
+
 
 
 
