@@ -17,6 +17,7 @@ def get_domain(url):
     return domain
 
 
+
 def is_valid_url(url):
     """
     Check if the given URL is valid or not.
@@ -214,9 +215,6 @@ def get_language(html_content):
         return f"Unable to get language: {str(e)}"
 
 
-
-
-
 def get_content(url, html_content):
     """Get the text content of a webpage without HTML elements"""
     try:
@@ -238,7 +236,7 @@ def get_content(url, html_content):
             text = ""
         
         return text.strip()
-    
+   
     except:
         return "Unable to get content"
 
