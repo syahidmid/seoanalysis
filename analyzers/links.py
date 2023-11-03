@@ -55,5 +55,13 @@ def find_duplicate_links(internal_links):
     return duplicate_links
 
 
+def count_internal_links(url, content_html):
+    internal_links = get_internal_links(url, content_html)  # Memanggil fungsi get_internal_links
+    return len(internal_links)
 
-
+def internal_link_density(internal_links_count, article_length):
+    if article_length > 0:
+        internal_link_density = round((internal_links_count / article_length) * 100, 2)  # Menghitung Internal Link Density dalam persentase
+        return internal_link_density
+    else:
+        return 0

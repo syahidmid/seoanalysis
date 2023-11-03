@@ -22,7 +22,14 @@ from scrapers.scrape import (
     get_headings,
     get_first_parapraph,
 )
-from analyzers.links import get_internal_links, utm_cleaner, link_contains_hash, find_duplicate_links
+from analyzers.links import (
+    get_internal_links, 
+    utm_cleaner, 
+    link_contains_hash, 
+    find_duplicate_links,
+    count_internal_links,
+    internal_link_density,
+)
 from analyzers.count import (
     word_counter,
     character_counter,
@@ -120,6 +127,8 @@ if st.button("Analyze"):
             first_parapraph = get_first_parapraph(content_html)
 
             internal_links_data = get_internal_links(url, content_html)
+            internal_links_total = count_internal_links(url, content_html)
+            
             # Membuat daftar status_code dengan status kode untuk setiap URL di internal_links_data
             
             
@@ -173,6 +182,7 @@ if st.button("Analyze"):
             keyword_in_first_paragraph = check_primary_in_first_p(primary_keyword, content_text)
             keyword_density = check_primary_keyword_in_content(primary_keyword, content_text)
             related_keywords = check_related_keywords(content_text, related_keywords_list)
+            link_density = internal_link_density(article_length, internal_links_total)
 
         with st.spinner("Starting competitors analysis..."):
             
@@ -301,7 +311,9 @@ if st.button("Analyze"):
         st.session_state['results']['related_keywords'] = related_keywords
         st.session_state['results']['internal_links_table'] = internal_links_table
         st.session_state['results']['internal_links_data'] = internal_links_data
+        st.session_state['results']['internal_links_total'] = internal_links_total
         st.session_state['results']['duplicate_links'] = duplicate_links
+        st.session_state['results']['link_density'] = link_density
         st.session_state['results']['url_input1'] = url_input1
         st.session_state['results']['url_input2'] = url_input2
         st.session_state['results']['url_input3'] = url_input3
@@ -325,6 +337,8 @@ if 'results' in st.session_state:
         related_keywords_result = results.get('related_keywords')
         internal_links_table = results.get('internal_links_table')
         internal_links_data = results.get('internal_links_data')
+        internal_links_total = results.get('internal_links_total')
+        link_density = results.get('link_density')
         duplicate_links = results.get('duplicate_links')
         meta_table = results.get('meta_table')
         content_html = results.get('content_html')
@@ -402,6 +416,9 @@ if 'results' in st.session_state:
             """
             ✂️ We present data that has been cleaned using `utm_cleaner()` and exclude `link_contains_hash()`. But don't worry, we have executed the `status_code()` on all original URLs.
             """ 
+            
+            st.write("Total: ", internal_links_total)
+            st.write(f"Internal Link Density: {link_density}%")
            
             if duplicate_links:
                 for link in duplicate_links:
