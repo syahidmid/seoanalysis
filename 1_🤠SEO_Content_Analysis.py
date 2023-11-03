@@ -182,7 +182,7 @@ if st.button("Analyze"):
             keyword_in_first_paragraph = check_primary_in_first_p(primary_keyword, content_text)
             keyword_density = check_primary_keyword_in_content(primary_keyword, content_text)
             related_keywords = check_related_keywords(content_text, related_keywords_list)
-            link_density = internal_link_density(article_length, internal_links_total)
+            link_density = internal_link_density(internal_links_total, article_length)
 
         with st.spinner("Starting competitors analysis..."):
             
