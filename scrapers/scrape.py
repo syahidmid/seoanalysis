@@ -10,13 +10,10 @@ def get_status_code(url):
     response = requests.get(url)
     return response.status_code
 
-
 def get_domain(url):
     """Get the domain of a URL"""
     domain = url.split("//")[-1].split("/")[0].split(".")[0]
     return domain
-
-
 
 def is_valid_url(url):
     """

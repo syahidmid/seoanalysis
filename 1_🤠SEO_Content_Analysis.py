@@ -417,9 +417,7 @@ if 'results' in st.session_state:
             ✂️ We present data that has been cleaned using `utm_cleaner()` and exclude `link_contains_hash()`. But don't worry, we have executed the `status_code()` on all original URLs.
             """ 
             
-            st.write("Total: ", internal_links_total)
             st.write(f"Total Inlinks = {internal_links_total} ({link_density:.2f}% of the total words)")
-            st.write(f"Internal Link Density: {link_density}%")
            
             if duplicate_links:
                 for link in duplicate_links:
