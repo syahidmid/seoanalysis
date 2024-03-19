@@ -25,7 +25,7 @@ from analyzers.keywords import (
     check_primary_keyword_in_headings,
 )
 
-st.title("SEO Content Analysis 🤠")
+st.title("SEO Content Analysis 🤠 >")
 st.write(
     "This app performs an SEO analysis of a website by checking its on-page SEO factors and analyzing its primary and related keywords."
 )
