@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import re
 from scrapers.scrape import (
     is_valid_url,
     get_status_code,
