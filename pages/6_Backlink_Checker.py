@@ -89,7 +89,7 @@ if st.button("Scrape dan Analisis"):
             meta_title = get_meta_title(file_html)  
             meta_description = get_meta_description(file_html)
 
-            backlinks = re.findall(r'(?<=<a\s+(?:[^>]*?\s+)?href=")(https?:\/\/(?:www\.)?lifepal\.co\.id\/[^"]*)(?=")', content_text)
+            backlinks = re.findall(r'<a\s+(?:[^>]*?\s+)?href="(https?:\/\/(?:www\.)?lifepal\.co\.id\/[^"]*)"', file_html)
             backlinks_lifepal.extend(backlinks) 
            
         data_content_r = {'URL': url, 'Status Code': status_code}
