@@ -83,6 +83,7 @@ if st.button("Scrape dan Analisis"):
         file_html = None
         meta_title = None
         backlinks_lifepal = []
+        status = ""
         if status_code == 200:
             file_html = get_html_content(url)
             content_text = get_content(url,file_html)
@@ -91,8 +92,12 @@ if st.button("Scrape dan Analisis"):
 
             backlinks = re.findall(r'<a\s+(?:[^>]*?\s+)?href="(https?:\/\/(?:www\.)?lifepal\.co\.id\/[^"]*)"', file_html)
             backlinks_lifepal.extend(backlinks) 
+            status = "Success"  # Jika scraping berhasil
+        else:
+            status = "Failed"  # Jika scraping gagal
+       
            
-        data_content_r = {'URL': url, 'Status Code': status_code}
+        data_content_r = {'URL': url, 'Status Code': status_code, 'Status': status}
         if meta_title:
             data_content_r['Meta Title'] = meta_title
             data_content_r['Meta Description'] = meta_description
