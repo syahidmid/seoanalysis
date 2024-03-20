@@ -77,8 +77,11 @@ else:
 
 if st.button("Scrape dan Analisis"):
     result_content = []
+    total_urls = len(urls)
+    progress_text = "Operation in progress. Please wait."
+    progress_bar = st.progress(0, text=progress_text)
 
-    for url in urls:
+    for index, url in enumerate(urls):
         status_code = get_status_code(url)
         final_url = url  # Inisialisasi final_url dengan url awal
         file_html = None
@@ -112,15 +115,15 @@ if st.button("Scrape dan Analisis"):
             data_content_r['Backlinks to Lifepal'] = backlinks_lifepal
         result_content.append(data_content_r)
 
-    # Mencetak DataFrame setelah scraping untuk URL ini selesai
-    df_content = pd.DataFrame(result_content)
-    st.session_state.seo_df_content = df_content
-    st.dataframe(st.session_state.seo_df_content)
+        # Mencetak DataFrame setelah scraping untuk URL ini selesai
+        df_content = pd.DataFrame(result_content)
+        st.session_state.seo_df_content = df_content
+        st.dataframe(st.session_state.seo_df_content)
 
-    # Update progress bar
-    progress_percent = (index + 1) / total_urls * 100
-    progress_bar.progress(progress_percent, text=f"Progress: {index+1}/{total_urls} URLs scraped")
-    time.sleep(0.1)  # Untuk memberikan sedikit jeda agar progress bar dapat dilihat
+        # Update progress bar
+        progress_percent = (index + 1) / total_urls * 100 if total_urls != 0 else 100
+        progress_bar.progress(progress_percent, text=f"Progress: {index+1}/{total_urls} URLs scraped")
+        time.sleep(0.1)  # Untuk memberikan sedikit jeda agar progress bar dapat dilihat
 
     # Hapus progress bar setelah selesai
     progress_bar.empty()
