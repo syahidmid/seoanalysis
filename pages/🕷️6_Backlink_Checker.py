@@ -48,12 +48,12 @@ elif input_option == "Upload File CSV":
     else:
         st.warning("Silakan unggah file CSV terlebih dahulu.")
         st.stop()
-
 if st.button("Scrape dan Analisis"):
     result_content = []
     total_urls = len(urls)
     progress_text = "Operation in progress. Please wait."
     progress_bar = st.progress(0, text=progress_text)
+    
     
     for index, url in enumerate(urls):
         status_code = None
