@@ -27,7 +27,7 @@ if 'seo_results_df' not in st.session_state:
     st.session_state['seo_results_df'] = None
 
 # Judul aplikasi
-st.title("Bulk Audit")
+st.title("🕷️Backlink Checker")
 # Pengaturan
 with st.expander("Pengaturan"):
     show_title_length = st.checkbox("Tampilkan Panjang Judul")
@@ -80,24 +80,32 @@ if st.button("Scrape dan Analisis"):
 
     for url in urls:
         status_code = get_status_code(url)
+        final_url = url  # Inisialisasi final_url dengan url awal
         file_html = None
         meta_title = None
         backlinks_lifepal = []
         status = ""
-        if status_code == 200:
-            file_html = get_html_content(url)
-            content_text = get_content(url,file_html)
+        redirect_url = ""  # Inisialisasi redirect_url
+        
+        # Jika status code adalah redirect (misalnya 301)
+        if status_code == 301 or status_code == 302:
+            redirect_url = get_redirect_url(url)  # Ambil URL redirect
+            final_url = redirect_url  # Atur final_url menjadi URL redirect
+            
+        # Lakukan scraping pada URL akhir (final URL)
+        if status_code == 200 or (status_code == 301 or status_code == 302):  # Perbarui kondisi untuk juga melakukan scraping jika status code adalah redirect
+            file_html = get_html_content(final_url)  # Scraping pada final_url (atau redirect_url jika redirect)
+            content_text = get_content(final_url, file_html)
             meta_title = get_meta_title(file_html)  
             meta_description = get_meta_description(file_html)
 
             backlinks = re.findall(r'<a\s+(?:[^>]*?\s+)?href="(https?:\/\/(?:www\.)?lifepal\.co\.id\/[^"]*)"', file_html)
             backlinks_lifepal.extend(backlinks) 
-            status = "Success"  # Jika scraping berhasil
+            status = "Success"
         else:
-            status = "Failed"  # Jika scraping gagal
-       
+            status = "Failed"
            
-        data_content_r = {'URL': url, 'Status Code': status_code, 'Status': status}
+        data_content_r = {'URL': url, 'Status Code': status_code, 'Status': status, 'Redirect URL': final_url}  # Tambahkan final_url ke data
         if meta_title:
             data_content_r['Meta Title'] = meta_title
             data_content_r['Meta Description'] = meta_description
@@ -108,5 +116,5 @@ if st.button("Scrape dan Analisis"):
     st.session_state.seo_df_content = df_content
     if st.session_state.seo_df_content is not None:
         st.dataframe(st.session_state.seo_df_content)
-        
+
 
