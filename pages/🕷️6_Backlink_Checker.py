@@ -55,7 +55,6 @@ if st.button("Scrape dan Analisis"):
     progress_text = "Operation in progress. Please wait."
     progress_bar = st.progress(0, text=progress_text)
     
-
     for index, url in enumerate(urls):
         status_code = None
         final_url = url  # Inisialisasi final_url dengan url awal
@@ -96,7 +95,6 @@ if st.button("Scrape dan Analisis"):
             data_content_r['Backlinks to Lifepal'] = backlinks_lifepal
         result_content.append(data_content_r)
 
-    
         progress_percent = min((index + 1) / total_urls, 1.0) if total_urls != 0 else 1.0  # Normalisasi nilai progress_percent
         progress_bar.progress(progress_percent, text=f"Progress: {index+1}/{total_urls} URLs scraped")
         time.sleep(0.1)
