@@ -1,4 +1,5 @@
 import requests
+from requests.exceptions import SSLError
 from bs4 import BeautifulSoup
 import re
 from domains import CONTENT_AREA
@@ -68,12 +69,15 @@ def get_title(content_html):
 def get_html_content(url):
     try:
         response = requests.get(url)
+        response.raise_for_status()  # Raise HTTPError for bad status codes
         html_content = response.text
         return html_content
 
-    except Exception as e:
-        return f"Unable to get HTML content: {str(e)}"
+    except SSLError as ssl_error:
+        return f"SSL Error: {ssl_error}"
 
+    except requests.RequestException as req_error:
+        return f"Unable to get HTML content: {req_error}"
 
 def get_meta_title(html_content):
     try:
