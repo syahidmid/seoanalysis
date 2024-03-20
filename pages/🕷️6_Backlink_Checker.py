@@ -113,24 +113,6 @@ if st.button("Scrape dan Analisis"):
             status = "Failed"
             status_code = 500  # Menetapkan status code 500 untuk menunjukkan kesalahan server
         
-        # Jika status code adalah redirect (misalnya 301)
-        if status_code == 301 or status_code == 302:
-            redirect_url = get_redirect_url(url)  # Ambil URL redirect
-            final_url = redirect_url  # Atur final_url menjadi URL redirect
-            
-        # Lakukan scraping pada URL akhir (final URL)
-        if status_code == 200 or (status_code == 301 or status_code == 302):  # Perbarui kondisi untuk juga melakukan scraping jika status code adalah redirect
-            file_html = get_html_content(final_url)  # Scraping pada final_url (atau redirect_url jika redirect)
-            content_text = get_content(final_url, file_html)
-            meta_title = get_meta_title(file_html)  
-            meta_description = get_meta_description(file_html)
-
-            backlinks = re.findall(r'<a\s+(?:[^>]*?\s+)?href="(https?://(?:www\.)?(?:lifepal\.co\.id|moneysmart\.id)/[^"]*)"', file_html)
-            backlinks_lifepal.extend(backlinks) 
-            status = "Success"
-        else:
-            status = "Failed"
-           
         data_content_r = {'URL': url, 'Status Code': status_code, 'Status': status, 'Redirect URL': final_url}  # Tambahkan final_url ke data
         if meta_title:
             data_content_r['Meta Title'] = meta_title
