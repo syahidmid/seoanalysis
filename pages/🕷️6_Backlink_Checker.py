@@ -93,27 +93,27 @@ if st.button("Scrape dan Analisis"):
         redirect_url = ""  # Inisialisasi redirect_url
 
         try:
-    status_code = get_status_code(url)
-            
-    if status_code == 301 or status_code == 302:
-        redirect_url = get_redirect_url(url)
-        final_url = redirect_url
-                
-    if status_code == 200 or (status_code == 301 or status_code == 302):
-        # Mengambil final_url setelah penanganan redirection
-        file_html = get_html_content(final_url)
-        content_text = get_content(final_url, file_html)
-        meta_title = get_meta_title(file_html)  
-        meta_description = get_meta_description(file_html)
+            status_code = get_status_code(url)
+                    
+            if status_code == 301 or status_code == 302:
+                redirect_url = get_redirect_url(url)
+                final_url = redirect_url
+                        
+            if status_code == 200 or (status_code == 301 or status_code == 302):
+                # Mengambil final_url setelah penanganan redirection
+                file_html = get_html_content(final_url)
+                content_text = get_content(final_url, file_html)
+                meta_title = get_meta_title(file_html)  
+                meta_description = get_meta_description(file_html)
 
-        backlinks = re.findall(r'<a\s+(?:[^>]*?\s+)?href="(https?://(?:www\.)?(?:lifepal\.co\.id|moneysmart\.id)/[^"]*)"', file_html)
-        backlinks_lifepal.extend(backlinks) 
-        status = "Success"
-    else:
-        status = "Failed"
-    except requests.exceptions.SSLError as e:
-        status = "Failed"
-        status_code = 500  # Menetapkan status code 500 untuk menunjukkan kesalahan server
+                backlinks = re.findall(r'<a\s+(?:[^>]*?\s+)?href="(https?://(?:www\.)?(?:lifepal\.co\.id|moneysmart\.id)/[^"]*)"', file_html)
+                backlinks_lifepal.extend(backlinks) 
+                status = "Success"
+            else:
+                status = "Failed"
+        except requests.exceptions.SSLError as e:
+                status = "Failed"
+                status_code = 500  # Menetapkan status code 500 untuk menunjukkan kesalahan server
 
         
         data_content_r = {'URL': url, 'Status Code': status_code, 'Status': status, 'Redirect URL': final_url}  # Tambahkan final_url ke data
