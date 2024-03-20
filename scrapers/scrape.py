@@ -2,7 +2,7 @@ import requests
 from requests.exceptions import RequestException, Timeout, TooManyRedirects, SSLError
 from bs4 import BeautifulSoup
 import re
-import sy
+import sys
 from domains import CONTENT_AREA
 from emoji import emojize
 from urllib.parse import urlparse
