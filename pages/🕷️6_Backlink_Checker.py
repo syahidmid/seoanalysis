@@ -88,7 +88,7 @@ if st.button("Scrape dan Analisis"):
                 status_code = 500  # Menetapkan status code 500 untuk menunjukkan kesalahan server
 
         
-        data_content_r = {'URL': url, 'Status Code': status_code, 'Status': status, 'Redirect URL': final_url}  # Tambahkan final_url ke data
+        data_content_r = {'URL': url, 'Redirect URL': final_url, 'Status Code': status_code, 'Status Crawling': status, }  # Tambahkan final_url ke data
         if meta_title:
             data_content_r['Meta Title'] = meta_title
             data_content_r['Meta Description'] = meta_description
