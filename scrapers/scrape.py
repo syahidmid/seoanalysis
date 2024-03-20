@@ -1,5 +1,5 @@
 import requests
-from requests.exceptions import SSLError
+from requests.exceptions import RequestException, Timeout, TooManyRedirects, SSLError
 from bs4 import BeautifulSoup
 import re
 from domains import CONTENT_AREA
@@ -73,11 +73,20 @@ def get_html_content(url):
         html_content = response.text
         return html_content
 
+    except Timeout as timeout_error:
+        return f"Request Timeout: {timeout_error}"
+
+    except TooManyRedirects as redirect_error:
+        return f"Too Many Redirects: {redirect_error}"
+
     except SSLError as ssl_error:
         return f"SSL Error: {ssl_error}"
 
-    except requests.RequestException as req_error:
-        return f"Unable to get HTML content: {req_error}"
+    except RequestException as req_error:
+        return f"Request Exception: {req_error}"
+
+    except Exception as error:
+        return f"An unexpected error occurred: {error}"
 
 def get_meta_title(html_content):
     try:
