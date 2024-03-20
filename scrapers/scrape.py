@@ -2,6 +2,7 @@ import requests
 from requests.exceptions import RequestException, Timeout, TooManyRedirects, SSLError
 from bs4 import BeautifulSoup
 import re
+import sy
 from domains import CONTENT_AREA
 from emoji import emojize
 from urllib.parse import urlparse
@@ -36,7 +37,7 @@ def get_redirect_url(url):
     except requests.RequestException as e:
         print(f"Error getting redirect URL: {e}")
         return None
-        
+
 def get_domain(url):
     """Get the domain of a URL"""
     domain = url.split("//")[-1].split("/")[0].split(".")[0]
