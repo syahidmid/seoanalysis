@@ -7,9 +7,26 @@ from emoji import emojize
 from urllib.parse import urlparse
 
 
-def get_status_code(url):
-    response = requests.get(url)
-    return response.status_code
+def get_status_code(url, max_redirects=10):
+    try:
+        response = requests.get(url, allow_redirects=True, timeout=10)
+        response.raise_for_status()  # Raise HTTPError for bad status codes
+        return response.status_code
+
+    except TooManyRedirects:
+        return 302  # Too many redirects
+
+    except SSLError:
+        return 495  # SSL Certificate Error
+
+    except Timeout:
+        return 408  # Timeout error
+
+    except RequestException:
+        return 500  # Other request exceptions
+
+    except Exception:
+        return 0  # Other unknown errors
 
 def get_domain(url):
     """Get the domain of a URL"""
@@ -67,26 +84,11 @@ def get_title(content_html):
 
 
 def get_html_content(url):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  # Raise HTTPError for bad status codes
-        html_content = response.text
-        return html_content
+    response = requests.get(url)
+    response.raise_for_status()  # Raise HTTPError for bad status codes
+    html_content = response.text
+    return html_content
 
-    except Timeout as timeout_error:
-        return f"Request Timeout: {timeout_error}"
-
-    except TooManyRedirects as redirect_error:
-        return f"Too Many Redirects: {redirect_error}"
-
-    except SSLError as ssl_error:
-        return f"SSL Error: {ssl_error}"
-
-    except RequestException as req_error:
-        return f"Request Exception: {req_error}"
-
-    except Exception as error:
-        return f"An unexpected error occurred: {error}"
 
 def get_meta_title(html_content):
     try:
