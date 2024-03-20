@@ -28,6 +28,15 @@ def get_status_code(url, max_redirects=10):
     except Exception:
         return 0  # Other unknown errors
 
+def get_redirect_url(url):
+    try:
+        response = requests.head(url, allow_redirects=True)
+        redirect_url = response.url
+        return redirect_url
+    except requests.RequestException as e:
+        print(f"Error getting redirect URL: {e}")
+        return None
+        
 def get_domain(url):
     """Get the domain of a URL"""
     domain = url.split("//")[-1].split("/")[0].split(".")[0]

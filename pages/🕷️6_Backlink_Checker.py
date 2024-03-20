@@ -11,6 +11,7 @@ from scrapers.scrape import (
     get_meta_title,
     get_meta_description,
     get_headings,
+    get_redirect_url,
 )
 from analyzers.keywords import (
     compare_seo_title_h1,
