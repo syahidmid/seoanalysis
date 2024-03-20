@@ -74,6 +74,7 @@ else:
     else:
         st.warning("Silakan unggah file CSV terlebih dahulu.")
         st.stop()
+
 if st.button("Scrape dan Analisis"):
     result_content = []
     total_urls = len(urls)
@@ -120,10 +121,9 @@ if st.button("Scrape dan Analisis"):
         st.dataframe(st.session_state.seo_df_content)
 
         # Update progress bar
-        progress_percent = min((index + 1) / total_urls * 100, 100) if total_urls != 0 else 100  # Maksimum progress_percent adalah 100
+        progress_percent = min((index + 1) / total_urls, 1.0) if total_urls != 0 else 1.0  # Normalisasi nilai progress_percent
         progress_bar.progress(progress_percent, text=f"Progress: {index+1}/{total_urls} URLs scraped")
         time.sleep(0.1)  # Untuk memberikan sedikit jeda agar progress bar dapat dilihat
 
     # Hapus progress bar setelah selesai
     progress_bar.empty()
-
