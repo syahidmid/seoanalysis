@@ -48,58 +48,65 @@ elif input_option == "Upload File CSV":
     else:
         st.warning("Silakan unggah file CSV terlebih dahulu.")
         st.stop()
-
 if st.button("Scrape dan Analisis"):
     result_content = []
     total_urls = len(urls)
     progress_text = "Operation in progress. Please wait."
     progress_bar = st.progress(0, text=progress_text)
     
-    for index, url in enumerate(urls):
-        status_code = None
-        final_url = url  # Inisialisasi final_url dengan url awal
-        file_html = None
-        meta_title = None
-        backlinks_lifepal = []
-        status = ""
-        redirect_url = ""  # Inisialisasi redirect_url
+    try:
+        for index, url in enumerate(urls):
+            status_code = None
+            final_url = url  # Inisialisasi final_url dengan url awal
+            file_html = None
+            meta_title = None
+            backlinks_lifepal = []
+            status = ""
+            redirect_url = ""  # Inisialisasi redirect_url
 
-        try:
-            status_code = get_status_code(url)
-                    
-            if status_code == 301 or status_code == 302:
-                redirect_url = get_redirect_url(url)
-                final_url = redirect_url
+            try:
+                status_code = get_status_code(url)
                         
-            if status_code == 200 or (status_code == 301 or status_code == 302):
-                # Mengambil final_url setelah penanganan redirection
-                file_html = get_html_content(final_url)
-                content_text = get_content(final_url, file_html)
-                meta_title = get_meta_title(file_html)  
-                meta_description = get_meta_description(file_html)
+                if status_code == 301 or status_code == 302:
+                    redirect_url = get_redirect_url(url)
+                    final_url = redirect_url
+                            
+                if status_code == 200 or (status_code == 301 or status_code == 302):
+                    # Mengambil final_url setelah penanganan redirection
+                    file_html = get_html_content(final_url)
+                    content_text = get_content(final_url, file_html)
+                    meta_title = get_meta_title(file_html)  
+                    meta_description = get_meta_description(file_html)
 
-                backlinks = re.findall(r'<a\s+(?:[^>]*?\s+)?href="(https?://(?:www\.)?(?:lifepal\.co\.id|moneysmart\.id)/[^"]*)"', file_html)
-                backlinks_lifepal.extend(backlinks) 
-                status = "Success"
-            else:
-                status = "Failed"
-        except requests.exceptions.SSLError as e:
-                status = "Failed"
-                status_code = 500  # Menetapkan status code 500 untuk menunjukkan kesalahan server
+                    backlinks = re.findall(r'<a\s+(?:[^>]*?\s+)?href="(https?://(?:www\.)?(?:lifepal\.co\.id|moneysmart\.id)/[^"]*)"', file_html)
+                    backlinks_lifepal.extend(backlinks) 
+                    status = "Success"
+                else:
+                    status = "Failed"
+            except requests.exceptions.SSLError as e:
+                    status = "Failed"
+                    status_code = 500  # Menetapkan status code 500 untuk menunjukkan kesalahan server
 
+            
+            data_content_r = {'URL': url, 'Redirect URL': final_url, 'Status Code': status_code, 'Status Crawling': status, }  # Tambahkan final_url ke data
+            if meta_title:
+                data_content_r['Meta Title'] = meta_title
+                data_content_r['Meta Description'] = meta_description
+                data_content_r['Backlinks to Lifepal'] = backlinks_lifepal
+            result_content.append(data_content_r)
+
+            progress_percent = min((index + 1) / total_urls, 1.0) if total_urls != 0 else 1.0  # Normalisasi nilai progress_percent
+            progress_bar.progress(progress_percent, text=f"Progress: {index+1}/{total_urls} URLs scraped")
+            time.sleep(0.1)
         
-        data_content_r = {'URL': url, 'Redirect URL': final_url, 'Status Code': status_code, 'Status Crawling': status, }  # Tambahkan final_url ke data
-        if meta_title:
-            data_content_r['Meta Title'] = meta_title
-            data_content_r['Meta Description'] = meta_description
-            data_content_r['Backlinks to Lifepal'] = backlinks_lifepal
-        result_content.append(data_content_r)
+        progress_bar.empty()
 
-        progress_percent = min((index + 1) / total_urls, 1.0) if total_urls != 0 else 1.0  # Normalisasi nilai progress_percent
-        progress_bar.progress(progress_percent, text=f"Progress: {index+1}/{total_urls} URLs scraped")
-        time.sleep(0.1)
+    except Exception as e:
+        st.exception(RuntimeError('This is an exception of type RuntimeError'))
 
-    progress_bar.empty()
-    df_content = pd.DataFrame(result_content)
-    st.session_state.seo_df_content = df_content
-    st.dataframe(st.session_state.seo_df_content)
+    # Setelah semua scraping selesai, tambahkan DataFrame
+    if result_content:
+        df_content = pd.DataFrame(result_content)
+        st.session_state.seo_df_content = df_content
+        st.dataframe(st.session_state.seo_df_content)
+
