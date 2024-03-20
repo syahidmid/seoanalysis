@@ -1,12 +1,11 @@
 import requests
-from requests.exceptions import RequestException, Timeout, TooManyRedirects, SSLError
+from requests.exceptions import TooManyRedirects, SSLError, Timeout, RequestException
 from bs4 import BeautifulSoup
 import re
 import sys
 from domains import CONTENT_AREA
 from emoji import emojize
 from urllib.parse import urlparse
-
 
 def get_status_code(url, max_redirects=10):
     try:
