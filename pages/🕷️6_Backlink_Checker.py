@@ -25,8 +25,9 @@ from analyzers.count import (
     character_counter,
 )
 
-if 'seo_results_df' not in st.session_state:
-    st.session_state['seo_results_df'] = None
+if st.session_state.seo_df_content is not None:
+    st.dataframe(st.session_state.seo_df_content)
+
 
 st.title("🕷️Backlink Checker")
 input_option = st.selectbox("Pilih metode input URL:", ["Text Area", "Upload File CSV"])
@@ -53,6 +54,7 @@ if st.button("Scrape dan Analisis"):
     total_urls = len(urls)
     progress_text = "Operation in progress. Please wait."
     progress_bar = st.progress(0, text=progress_text)
+    
 
     for index, url in enumerate(urls):
         status_code = None
@@ -102,4 +104,3 @@ if st.button("Scrape dan Analisis"):
     progress_bar.empty()
     df_content = pd.DataFrame(result_content)
     st.session_state.seo_df_content = df_content
-    st.dataframe(st.session_state.seo_df_content)
