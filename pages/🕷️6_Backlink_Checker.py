@@ -117,5 +117,13 @@ if st.button("Scrape dan Analisis"):
     st.session_state.seo_df_content = df_content
     st.dataframe(st.session_state.seo_df_content)
 
+    # Update progress bar
+    progress_percent = (index + 1) / total_urls * 100
+    progress_bar.progress(progress_percent, text=f"Progress: {index+1}/{total_urls} URLs scraped")
+    time.sleep(0.1)  # Untuk memberikan sedikit jeda agar progress bar dapat dilihat
+
+    # Hapus progress bar setelah selesai
+    progress_bar.empty()
+
 
 
