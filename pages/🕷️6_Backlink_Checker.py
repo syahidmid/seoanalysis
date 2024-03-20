@@ -98,8 +98,11 @@ if st.button("Scrape dan Analisis"):
         progress_percent = min((index + 1) / total_urls, 1.0) if total_urls != 0 else 1.0  # Normalisasi nilai progress_percent
         progress_bar.progress(progress_percent, text=f"Progress: {index+1}/{total_urls} URLs scraped")
         time.sleep(0.1)
+        
+        # Memperbarui data frame dengan menambahkan data baru
+        if result_content:
+            df_content = pd.DataFrame(result_content)
+            st.session_state.seo_df_content = st.session_state.seo_df_content.append(df_content, ignore_index=True)
+            st.dataframe(st.session_state.seo_df_content)
 
     progress_bar.empty()
-    df_content = pd.DataFrame(result_content)
-    st.session_state.seo_df_content = df_content
-    st.dataframe(st.session_state.seo_df_content)
