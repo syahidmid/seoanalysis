@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import time
 import re
 from scrapers.scrape import (
     is_valid_url,
