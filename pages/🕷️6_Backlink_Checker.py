@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import requests
 import time
 import re
 from scrapers.scrape import (
