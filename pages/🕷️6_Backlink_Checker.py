@@ -116,11 +116,6 @@ if st.button("Scrape dan Analisis"):
             data_content_r['Backlinks to Lifepal'] = backlinks_lifepal
         result_content.append(data_content_r)
 
-        # Mencetak DataFrame setelah scraping untuk URL ini selesai
-        df_content = pd.DataFrame(result_content)
-        st.session_state.seo_df_content = df_content
-        st.dataframe(st.session_state.seo_df_content)
-
         # Update progress bar
         progress_percent = min((index + 1) / total_urls, 1.0) if total_urls != 0 else 1.0  # Normalisasi nilai progress_percent
         progress_bar.progress(progress_percent, text=f"Progress: {index+1}/{total_urls} URLs scraped")
@@ -128,3 +123,10 @@ if st.button("Scrape dan Analisis"):
 
     # Hapus progress bar setelah selesai
     progress_bar.empty()
+    df_content = pd.DataFrame(result_content)
+
+    # Menyimpan DataFrame ke dalam session state
+    st.session_state.seo_df_content = df_content
+
+    # Mencetak DataFrame ke dalam antarmuka pengguna
+    st.dataframe(st.session_state.seo_df_content)
