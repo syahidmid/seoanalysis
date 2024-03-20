@@ -83,13 +83,35 @@ if st.button("Scrape dan Analisis"):
     progress_bar = st.progress(0, text=progress_text)
 
     for index, url in enumerate(urls):
-        status_code = get_status_code(url)
+        status_code = None
         final_url = url  # Inisialisasi final_url dengan url awal
         file_html = None
         meta_title = None
         backlinks_lifepal = []
         status = ""
         redirect_url = ""  # Inisialisasi redirect_url
+
+        try:
+            status_code = get_status_code(url)
+            
+            if status_code == 301 or status_code == 302:
+                redirect_url = get_redirect_url(url)
+                final_url = redirect_url
+                
+            if status_code == 200 or (status_code == 301 or status_code == 302):
+                file_html = get_html_content(final_url)
+                content_text = get_content(final_url, file_html)
+                meta_title = get_meta_title(file_html)  
+                meta_description = get_meta_description(file_html)
+
+                backlinks = re.findall(r'<a\s+(?:[^>]*?\s+)?href="(https?://(?:www\.)?(?:lifepal\.co\.id|moneysmart\.id)/[^"]*)"', file_html)
+                backlinks_lifepal.extend(backlinks) 
+                status = "Success"
+            else:
+                status = "Failed"
+        except requests.exceptions.SSLError as e:
+            status = "Failed"
+            status_code = 500  # Menetapkan status code 500 untuk menunjukkan kesalahan server
         
         # Jika status code adalah redirect (misalnya 301)
         if status_code == 301 or status_code == 302:
