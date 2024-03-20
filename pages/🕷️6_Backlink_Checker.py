@@ -25,6 +25,7 @@ from analyzers.count import (
     character_counter,
 )
 
+st.session_state.sync()
 if st.session_state.seo_df_content is not None:
     st.dataframe(st.session_state.seo_df_content)
 
