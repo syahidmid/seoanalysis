@@ -112,9 +112,10 @@ if st.button("Scrape dan Analisis"):
             data_content_r['Backlinks to Lifepal'] = backlinks_lifepal
         result_content.append(data_content_r)
 
+    # Mencetak DataFrame setelah scraping untuk URL ini selesai
     df_content = pd.DataFrame(result_content)
     st.session_state.seo_df_content = df_content
-    if st.session_state.seo_df_content is not None:
-        st.dataframe(st.session_state.seo_df_content)
+    st.dataframe(st.session_state.seo_df_content)
+
 
 
