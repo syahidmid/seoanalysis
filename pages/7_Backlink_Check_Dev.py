@@ -31,9 +31,6 @@ if 'seo_results_df' not in st.session_state:
 
 st.title("🕷️Backlink Checker")
 
-# Membuat placeholder untuk DataFrame
-df_placeholder = st.empty()
-
 input_option = st.selectbox("Pilih metode input URL:", ["Text Area", "Upload File CSV"])
 if input_option == "Text Area":
     urls = st.text_area("Masukkan URL (pisahkan dengan Enter)", height=200)
@@ -58,6 +55,9 @@ if st.button("Scrape dan Analisis"):
     total_urls = len(urls)
     progress_text = "Operation in progress. Please wait."
     progress_bar = st.progress(0, text=progress_text)
+
+    # Membuat placeholder untuk DataFrame di bawah tombol
+    df_placeholder = st.empty()
     
     for index, url in enumerate(urls):
         status_code = None
@@ -105,7 +105,7 @@ if st.button("Scrape dan Analisis"):
         # Update DataFrame dalam session state
         st.session_state['seo_results_df'] = pd.DataFrame(result_content)
 
-        # Tampilkan DataFrame yang diperbarui di tempat kosong
+        # Tampilkan DataFrame yang diperbarui di tempat kosong di bawah tombol
         df_placeholder.dataframe(st.session_state['seo_results_df'])
 
     progress_bar.empty()
