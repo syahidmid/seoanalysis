@@ -26,11 +26,12 @@ from analyzers.count import (
     character_counter,
 )
 
+@st.cache(persist=True)
+def init_seo_results_df():
+    return pd.DataFrame(columns=['URL', 'Redirect URL', 'Status Code', 'Status Crawling', 'Meta Title', 'Meta Description', 'Backlinks to Lifepal'])
+
 if 'seo_results_df' not in st.session_state:
-    st.session_state['seo_results_df'] = pd.DataFrame(columns=['URL', 'Redirect URL', 'Status Code', 'Status Crawling', 'Meta Title', 'Meta Description', 'Backlinks to Lifepal'])
-
-st.title("🕷️Backlink Checker")
-
+    st.session_state['seo_results_df'] = init_seo_results_df()
 input_option = st.selectbox("Pilih metode input URL:", ["Text Area", "Upload File CSV"])
 if input_option == "Text Area":
     urls = st.text_area("Masukkan URL (pisahkan dengan Enter)", height=200)
