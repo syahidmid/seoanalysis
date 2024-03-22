@@ -26,8 +26,10 @@ from analyzers.count import (
     character_counter,
 )
 
-if 'seo_results_df' not in st.session_state:
-    st.session_state['seo_results_df'] = pd.DataFrame(result_content)
+
+if 'seo_results_df' not in st.session_state or st.session_state['seo_results_df'] is None:
+    st.session_state['seo_results_df'] = pd.DataFrame(columns=['URL', 'Redirect URL', 'Status Code', 'Status Crawling', 'Meta Title', 'Meta Description', 'Backlinks to Lifepal'])
+
 
 st.title("🕷️Backlink Checker")
 
