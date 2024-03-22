@@ -30,7 +30,9 @@ if 'seo_results_df' not in st.session_state:
     st.session_state['seo_results_df'] = pd.DataFrame(columns=['URL', 'Redirect URL', 'Status Code', 'Status Crawling', 'Meta Title', 'Meta Description', 'Backlinks to Lifepal'])
 
 st.title("🕷️Backlink Checker")
-st.write(st.session_state['seo_results_df'])  # Tampilkan DataFrame kosong sebelum tombol ditekan
+
+# Membuat placeholder untuk DataFrame
+df_placeholder = st.empty()
 
 input_option = st.selectbox("Pilih metode input URL:", ["Text Area", "Upload File CSV"])
 if input_option == "Text Area":
@@ -102,5 +104,8 @@ if st.button("Scrape dan Analisis"):
 
         # Update DataFrame dalam session state
         st.session_state['seo_results_df'] = pd.DataFrame(result_content)
+
+        # Tampilkan DataFrame yang diperbarui di tempat kosong
+        df_placeholder.dataframe(st.session_state['seo_results_df'])
 
     progress_bar.empty()
