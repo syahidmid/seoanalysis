@@ -49,7 +49,9 @@ elif input_option == "Upload File CSV":
     else:
         st.warning("Silakan unggah file CSV terlebih dahulu.")
         st.stop()
-
+# Tampilkan DataFrame yang diperbarui di tempat kosong di bawah tombol
+        df_placeholder.dataframe(st.session_state['seo_results_df'])
+        
 if st.button("Scrape dan Analisis"):
     result_content = []
     total_urls = len(urls)
@@ -105,7 +107,6 @@ if st.button("Scrape dan Analisis"):
         # Update DataFrame dalam session state
         st.session_state['seo_results_df'] = pd.DataFrame(result_content)
 
-        # Tampilkan DataFrame yang diperbarui di tempat kosong di bawah tombol
-        df_placeholder.dataframe(st.session_state['seo_results_df'])
+        
 
     progress_bar.empty()
