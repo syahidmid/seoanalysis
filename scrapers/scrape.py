@@ -25,6 +25,9 @@ def get_status_code(url, max_redirects=10):
     except RequestException:
         return 500  # Other request exceptions
 
+    except requests.exceptions.MissingSchema:
+        return 400  # Missing URL schema
+
     except Exception:
         return 0  # Other unknown errors
 
