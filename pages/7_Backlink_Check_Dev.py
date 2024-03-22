@@ -26,8 +26,30 @@ from analyzers.count import (
     character_counter,
 )
 
-if 'seo_results_df' not in st.session_state:
-    st.session_state['seo_results_df'] = pd.DataFrame(columns=['URL', 'Redirect URL', 'Status Code', 'Status Crawling', 'Meta Title', 'Meta Description', 'Backlinks to Lifepal'])
+# Fungsi untuk mendapatkan atau membuat session state
+def get_session_state():
+    return st.session_state
+
+# Fungsi untuk mengupdate session state
+def update_session_state(session_state):
+    st.session_state = session_state
+
+# Fungsi untuk menyimpan DataFrame ke dalam session state
+def save_dataframe_to_session_state(df):
+    session_state = get_session_state()
+    session_state['seo_results_df'] = df
+    update_session_state(session_state)
+
+# Fungsi untuk mendapatkan DataFrame dari session state
+def get_dataframe_from_session_state():
+    session_state = get_session_state()
+    if 'seo_results_df' not in session_state:
+        session_state['seo_results_df'] = pd.DataFrame(columns=['URL', 'Redirect URL', 'Status Code', 'Status Crawling', 'Meta Title', 'Meta Description', 'Backlinks to Lifepal'])
+        update_session_state(session_state)
+    return session_state['seo_results_df']
+
+# Mengambil DataFrame dari session state
+seo_results_df = get_dataframe_from_session_state()
 
 st.title("🕷️Backlink Checker")
 
@@ -103,9 +125,10 @@ if st.button("Scrape dan Analisis"):
         time.sleep(0.1)
 
         # Update DataFrame dalam session state
-        st.session_state['seo_results_df'] = pd.DataFrame(result_content)
+        seo_results_df = pd.DataFrame(result_content)
+        save_dataframe_to_session_state(seo_results_df)
 
         # Tampilkan DataFrame yang diperbarui di tempat kosong di bawah tombol
-        df_placeholder.dataframe(st.session_state['seo_results_df'])
+        df_placeholder.dataframe(seo_results_df)
 
     progress_bar.empty()
