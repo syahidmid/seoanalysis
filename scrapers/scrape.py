@@ -18,18 +18,15 @@ def get_status_code(url, max_redirects=10):
     try:
         import requests
         response = requests.get(url, allow_redirects=True, timeout=10)
-        response.raise_for_status()  # Raise HTTPError for bad status codes
-        
-        # Load daftar frasa "Soft 404" dari file JSON
+        response.raise_for_status()  
         soft_404_phrases = load_soft_404_phrases("soft_404_phrases.json")
-        
-        # Check if any of the phrases in the response text
+
         for phrase in soft_404_phrases:
             if phrase.lower() in response.text.lower():
                 return "Soft 404"
 
         if response.status_code == 404:
-            return "Hard 404"
+            return 404
         else:
             return response.status_code
 
