@@ -14,6 +14,10 @@ def load_soft_404_phrases(file_path):
         return data["soft_404_phrases"]
 soft_404_phrases = load_soft_404_phrases("pages/data/soft_404_phrases.json")
 
+def load_error_message(status_code):
+    soft_404_phrases = load_soft_404_phrases("pages/data/soft_404_phrases.json")
+    return soft_404_phrases.get(str(status_code), "")
+    
 def get_status_code(url, max_redirects=10):
     try:
         import requests
