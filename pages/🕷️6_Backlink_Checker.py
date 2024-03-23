@@ -12,7 +12,7 @@ from scrapers.scrape import (
     get_meta_description,
     get_headings,
     get_redirect_url,
-    load_status_code_messages,
+    load_error_message
 )
 
 if 'seo_results_df' not in st.session_state or st.session_state['seo_results_df'] is None:
