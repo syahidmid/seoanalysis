@@ -15,9 +15,10 @@ def load_soft_404_phrases(file_path):
 
 soft_404_phrases = load_soft_404_phrases("pages/data/soft_404_phrases.json")
 
-def load_error_message(status_code):
-    soft_404_phrases = load_soft_404_phrases("pages/data/status_code_messages.json")
-    return soft_404_phrases.get(str(status_code), "")
+def load_error_message(status_code, file_path):
+    with open(file_path, "r") as f:
+        status_code_messages = json.load(f)
+        return status_code_messages.get(str(status_code), "")
 
 def get_status_code(url, max_redirects=10):
     try:
