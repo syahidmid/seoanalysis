@@ -1,35 +1,54 @@
 import requests
 from requests.exceptions import TooManyRedirects, SSLError, Timeout, RequestException
 from bs4 import BeautifulSoup
+import json
 import re
 import sys
 from domains import CONTENT_AREA
 from emoji import emojize
 from urllib.parse import urlparse
 
+def load_soft_404_phrases("pages/data/soft_404_phrases.json"):
+    with open("pages/data/soft_404_phrases.json", "r") as f:
+        data = json.load(f)
+        return data["soft_404_phrases"]
+
 def get_status_code(url, max_redirects=10):
     try:
+        import requests
         response = requests.get(url, allow_redirects=True, timeout=10)
         response.raise_for_status()  # Raise HTTPError for bad status codes
-        return response.status_code
+        
+        # Load daftar frasa "Soft 404" dari file JSON
+        soft_404_phrases = load_soft_404_phrases("soft_404_phrases.json")
+        
+        # Check if any of the phrases in the response text
+        for phrase in soft_404_phrases:
+            if phrase.lower() in response.text.lower():
+                return "Soft 404"
 
-    except TooManyRedirects:
+        if response.status_code == 404:
+            return "Hard 404"
+        else:
+            return response.status_code
+
+    except requests.exceptions.TooManyRedirects:
         return 302  # Too many redirects
 
-    except SSLError:
+    except requests.exceptions.SSLError:
         return 495  # SSL Certificate Error
 
-    except Timeout:
+    except requests.exceptions.Timeout:
         return 408  # Timeout error
-
-    except RequestException:
-        return 500  # Other request exceptions
 
     except requests.exceptions.MissingSchema:
         return 400  # Missing URL schema
 
+    except requests.exceptions.HTTPError as e:
+        return e.response.status_code  # Other HTTP errors
+
     except Exception:
-        return 0  # Other unknown errors
+        return 500  # Other unknown errors
 
 def get_redirect_url(url):
     try:
