@@ -77,7 +77,7 @@ if st.button("Scrape dan Analisis"):
                 status = "Failed"
                 status_code = 500  
         
-        data_content_r = {'URL': url, 'Redirect URL': final_url, 'Status Code': status_code, 'Status':status_code_messages 'Status Crawling': status, }  
+        data_content_r = {'URL': url, 'Redirect URL': final_url, 'Status Code': status_code, 'Status': status_code_messages, 'Status Crawling': status, }  
         if meta_title:
             data_content_r['Meta Title'] = meta_title
             data_content_r['Meta Description'] = meta_description
