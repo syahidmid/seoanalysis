@@ -15,7 +15,7 @@ from scrapers.scrape import (
 )
 
 if 'seo_results_df' not in st.session_state or st.session_state['seo_results_df'] is None:
-    st.session_state['seo_results_df'] = pd.DataFrame(result_content)
+    st.session_state['seo_results_df'] = pd.DataFrame(columns=['URL', 'Redirect URL', 'Status Code', 'Status Crawling', 'Meta Title', 'Meta Description', 'Backlinks to Lifepal'])
 
 st.title("🕷️Backlink Checker")
 
@@ -87,7 +87,7 @@ if st.button("Scrape dan Analisis"):
         time.sleep(0.1)
 
         # Update DataFrame dalam session state
-        st.session_state['seo_results_df'] = pd.DataFrame(result_content)
+        st.session_state['seo_results_df'] = pd.concat([st.session_state['seo_results_df'], pd.DataFrame(result_content)], ignore_index=True)
         df_placeholder.dataframe(st.session_state['seo_results_df'])
 
     progress_bar.empty()
