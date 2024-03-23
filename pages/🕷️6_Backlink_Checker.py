@@ -87,7 +87,7 @@ if st.button("Scrape dan Analisis"):
         time.sleep(0.1)
 
         # Update DataFrame dalam session state
-        st.session_state['seo_results_df'] = pd.concat([st.session_state['seo_results_df'], pd.DataFrame(result_content)], ignore_index=True)
+        st.session_state['seo_results_df'] = pd.DataFrame(result_content)
         df_placeholder.dataframe(st.session_state['seo_results_df'])
 
     progress_bar.empty()
