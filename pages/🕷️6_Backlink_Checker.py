@@ -46,7 +46,7 @@ if st.button("Scrape dan Analisis"):
     df_placeholder = st.empty()
     
     for index, url in enumerate(urls):
-        status_code, error_message = get_status_code(url)
+        status_code = get_status_code(url)
         final_url = url
         file_html = None
         meta_title = None
@@ -75,7 +75,7 @@ if st.button("Scrape dan Analisis"):
                 status = "Failed"
                 status_code = 500  
         
-        data_content_r = {'URL': url, 'Redirect URL': final_url, 'Status Code': status_code, 'Error': error_message, 'Status Crawling': status, }  
+        data_content_r = {'URL': url, 'Redirect URL': final_url, 'Status Code': status_code, 'Status Crawling': status, }  
         if meta_title:
             data_content_r['Meta Title'] = meta_title
             data_content_r['Meta Description'] = meta_description
