@@ -3,6 +3,16 @@ import pandas as pd
 import time
 import re
 import requests
+from scrapers.scrape import (
+    is_valid_url,
+    get_status_code,
+    get_html_content,
+    get_content,
+    get_meta_title,
+    get_meta_description,
+    get_headings,
+    get_redirect_url,
+)
 
 # Mengecek jika 'seo_results_df' tidak ada di session state atau None, maka membuat DataFrame baru
 if 'seo_results_df' not in st.session_state or st.session_state['seo_results_df'] is None:
