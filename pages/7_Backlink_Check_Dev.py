@@ -74,10 +74,6 @@ if st.button("Scrape dan Analisis"):
         except requests.exceptions.SSLError as e:
                 status = "Failed"
                 status_code = 500  
-        if backlinks:
-            backlinks_lifepal = backlinks
-        else:
-            backlinks_lifepal = "no data"
         
         data_content_r = {'URL': url, 'Redirect URL': final_url, 'Status Code': status_code, 'Status Crawling': status, }  
         if meta_title:
