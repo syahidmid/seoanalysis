@@ -3,17 +3,8 @@ import pandas as pd
 import time
 import re
 import requests
-from scrapers.scrape import (
-    is_valid_url,
-    get_status_code,
-    get_html_content,
-    get_content,
-    get_meta_title,
-    get_meta_description,
-    get_headings,
-    get_redirect_url,
-)
 
+# Mengecek jika 'seo_results_df' tidak ada di session state atau None, maka membuat DataFrame baru
 if 'seo_results_df' not in st.session_state or st.session_state['seo_results_df'] is None:
     st.session_state['seo_results_df'] = pd.DataFrame(columns=['URL', 'Redirect URL', 'Status Code', 'Status Crawling', 'Meta Title', 'Meta Description', 'Backlinks to Lifepal'])
 
@@ -87,7 +78,7 @@ if st.button("Scrape dan Analisis"):
         time.sleep(0.1)
 
         # Update DataFrame dalam session state
-        st.session_state['seo_results_df'] = pd.DataFrame(result_content)
+        st.session_state['seo_results_df'] = pd.concat([st.session_state['seo_results_df'], pd.DataFrame(result_content)], ignore_index=True)
         df_placeholder.dataframe(st.session_state['seo_results_df'])
 
     progress_bar.empty()
