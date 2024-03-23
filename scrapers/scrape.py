@@ -13,40 +13,36 @@ def load_soft_404_phrases(file_path):
         data = json.load(f)
         return data["soft_404_phrases"]
 soft_404_phrases = load_soft_404_phrases("pages/data/soft_404_phrases.json")
+load(f)
+        return data["soft_404_phrases"]
 
 def get_status_code(url, max_redirects=10):
     try:
-        import requests
         response = requests.get(url, allow_redirects=True, timeout=10)
         response.raise_for_status()  
-        soft_404_phrases = load_soft_404_phrases("soft_404_phrases.json")
-
+        soft_404_phrases = load_soft_404_phrases("pages/data/soft_404_phrases.json")
+    
         for phrase in soft_404_phrases:
             if phrase.lower() in response.text.lower():
-                return "Soft 404"
+                return "Soft 404", ""  # Return status code and empty error message
 
         if response.status_code == 404:
-            return 404
+            return 404, ""  # Return status code and empty error message
         else:
-            return response.status_code
+            return response.status_code, ""  # Return status code and empty error message
 
-    except requests.exceptions.TooManyRedirects:
-        return 302  # Too many redirects
-
-    except requests.exceptions.SSLError:
-        return 495  # SSL Certificate Error
-
-    except requests.exceptions.Timeout:
-        return 408  # Timeout error
-
+    except TooManyRedirects:
+        return 302, "Too many redirects"  # Return status code and error message
+    except SSLError:
+        return 495, "SSL Certificate Error"  # Return status code and error message
+    except Timeout:
+        return 408, "Timeout error"  # Return status code and error message
+    except RequestException:
+        return 500, "Other request exceptions"  # Return status code and error message
     except requests.exceptions.MissingSchema:
-        return 400  # Missing URL schema
-
-    except requests.exceptions.HTTPError as e:
-        return e.response.status_code  # Other HTTP errors
-
-    except Exception:
-        return 500  # Other unknown errors
+        return 400, "Missing URL schema"  # Return status code and error message
+    except Exception as e:
+        return 500, f"Error: {str(e)}"  # Return status code and error message
 
 def get_redirect_url(url):
     try:
