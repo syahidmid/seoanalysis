@@ -13,23 +13,9 @@ from scrapers.scrape import (
     get_headings,
     get_redirect_url,
 )
-from analyzers.keywords import (
-    compare_seo_title_h1,
-    check_related_keywords,
-    check_primary_keyword_in_h1,
-    check_primary_in_first_p,
-    check_primary_keyword_in_content,
-    check_primary_keyword_in_headings,
-)
-from analyzers.count import (
-    word_counter,
-    character_counter,
-)
-
 
 if 'seo_results_df' not in st.session_state or st.session_state['seo_results_df'] is None:
     st.session_state['seo_results_df'] = pd.DataFrame(columns=['URL', 'Redirect URL', 'Status Code', 'Status Crawling', 'Meta Title', 'Meta Description', 'Backlinks to Lifepal'])
-
 
 st.title("🕷️Backlink Checker")
 
@@ -57,8 +43,6 @@ if st.button("Scrape dan Analisis"):
     total_urls = len(urls)
     progress_text = "Operation in progress. Please wait."
     progress_bar = st.progress(0, text=progress_text)
-
-    # Membuat placeholder untuk DataFrame di bawah tombol
     df_placeholder = st.empty()
     
     for index, url in enumerate(urls):
@@ -66,7 +50,7 @@ if st.button("Scrape dan Analisis"):
         final_url = url
         file_html = None
         meta_title = None
-        backlinks_lifepal = []
+        backlinks_lifepal = "No Data"
         status = ""
         redirect_url = ""
 
@@ -82,7 +66,6 @@ if st.button("Scrape dan Analisis"):
                 content_text = get_content(final_url, file_html)
                 meta_title = get_meta_title(file_html)  
                 meta_description = get_meta_description(file_html)
-
                 backlinks = re.findall(r'<a\s+(?:[^>]*?\s+)?href="(https?://(?:www\.)?(?:lifepal\.co\.id|moneysmart\.id)/[^"]*)"', file_html)
                 backlinks_lifepal.extend(backlinks) 
                 status = "Success"
@@ -91,7 +74,6 @@ if st.button("Scrape dan Analisis"):
         except requests.exceptions.SSLError as e:
                 status = "Failed"
                 status_code = 500  
-
         
         data_content_r = {'URL': url, 'Redirect URL': final_url, 'Status Code': status_code, 'Status Crawling': status, }  
         if meta_title:
@@ -106,8 +88,6 @@ if st.button("Scrape dan Analisis"):
 
         # Update DataFrame dalam session state
         st.session_state['seo_results_df'] = pd.DataFrame(result_content)
-
-        # Tampilkan DataFrame yang diperbarui di tempat kosong di bawah tombol
         df_placeholder.dataframe(st.session_state['seo_results_df'])
 
     progress_bar.empty()
