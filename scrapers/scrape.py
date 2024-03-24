@@ -1,34 +1,53 @@
 import requests
+from requests.exceptions import TooManyRedirects, SSLError, Timeout, RequestException
 from bs4 import BeautifulSoup
+import json
 import re
+import sys
 from domains import CONTENT_AREA
 from emoji import emojize
 from urllib.parse import urlparse
 
-# ChatGPT d2ee59b7-b368-4a5f-b3af-2e33b7f33b4a
-example_url = [
-    "https://backlinko.com/actionable-seo-tips",
-    "https://www.semrush.com/blog/seo-tips/",
-    "https://www.wordstream.com/blog/ws/2021/03/05/seo-strategy",
-    "https://ahrefs.com/blog/seo-tips/",
-    "https://backlinko.com/actionable-seo-tips",
-    "https://developers.google.com/search/docs/fundamentals/seo-starter-guide",
-    "https://www.pcmag.com/how-to/easy-but-powerful-seo-tips-to-boost-traffic-to-your-website",
-    "https://www.searchenginejournal.com/seo-tips/374673/",
-    "https://www.bdc.ca/en/articles-tools/marketing-sales-export/marketing/seo-small-businesses-10-ways-rank-higher",
-]
+def get_status_code(url, max_redirects=10):
+    try:
+        response = requests.get(url, allow_redirects=True, timeout=10)
+        response.raise_for_status()  # Raise HTTPError for bad status codes
+        return response.status_code
 
+    except TooManyRedirects:
+        return 302  # Too many redirects
 
-def get_status_code(url):
-    response = requests.get(url)
-    return response.status_code
+    except SSLError:
+        return 495  # SSL Certificate Error
 
+    except Timeout:
+        return 408  # Timeout error
+
+    except requests.exceptions.MissingSchema:
+        return 400  # Missing URL schema
+
+    except requests.exceptions.HTTPError as http_error:
+        return http_error.response.status_code  # HTTP Error code
+
+    except RequestException:
+        return 500  # Other request exceptions
+
+    except Exception:
+        return 0  # Other unknown errors
+
+def get_redirect_url(url):
+    try:
+        response = requests.head(url, allow_redirects=True)
+        redirect_url = response.url
+        return redirect_url
+    except requests.RequestException as e:
+        print(f"Error getting redirect URL: {e}")
+        return None
 
 def get_domain(url):
     """Get the domain of a URL"""
     domain = url.split("//")[-1].split("/")[0].split(".")[0]
     return domain
-
 
 def is_valid_url(url):
     """
@@ -66,13 +85,9 @@ def domain_disclaimer(url):
         )
 
 
-def get_title(url):
-    """Get the title of a webpage"""
+def get_title(content_html):
     try:
-        # Make request to webpage
-        response = requests.get(url)
-
-        # Parse webpage content using Beautiful Soup
+        response = requests.get(content_html)
         soup = BeautifulSoup(response.content, "html.parser")
 
         # Get title of webpage
@@ -84,112 +99,213 @@ def get_title(url):
         return "Unable to get title"
 
 
-def get_description(url):
-    """Get the description of a webpage"""
+def get_html_content(url):
+    response = requests.get(url)
+    response.raise_for_status()  # Raise HTTPError for bad status codes
+    html_content = response.text
+    return html_content
+
+
+def get_meta_title(html_content):
     try:
-        # Make request to webpage
-        response = requests.get(url)
+        soup = BeautifulSoup(html_content, "html.parser")
+        meta_tags = soup.find_all("meta")
+        title = ""
+        for tag in meta_tags:
+            if (
+                tag.get("property", None) == "og:title"
+                or tag.get("name", None) == "title"
+            ):
+                title = tag.get("content", None)
+                break
 
-        # Parse webpage content using Beautiful Soup
-        soup = BeautifulSoup(response.content, "html.parser")
+        if title:
+            return title.strip()
+        else:
+            return "No meta title found"
 
-        # Get description from meta tags
+    except Exception as e:
+        return f"Unable to get meta title: {str(e)}"
+
+
+def get_meta_description(html_content):
+    try:
+        soup = BeautifulSoup(html_content, "html.parser")
         meta_tags = soup.find_all("meta")
         description = ""
         for tag in meta_tags:
             if tag.get("name", None) == "description":
                 description = tag.get("content", None)
+                break
 
-        return description
-
-    except:
-        return "Unable to get description"
-
-
-def get_content(url):
-    try:
-        # Check if domain is registered
-        parsed_url = urlparse(url)
-        domain = (
-            parsed_url.netloc.split(".")[-2]
-            if parsed_url.netloc.count(".") >= 2
-            else parsed_url.netloc
-        )
-        content_class = CONTENT_AREA.get(domain)
-
-        if content_class:
-            # Make request to webpage
-            response = requests.get(url)
-
-            # Parse webpage content using Beautiful Soup
-            soup = BeautifulSoup(response.content, "html.parser")
-
-            # Get content of webpage using class
-            content = soup.find("div", class_=content_class)
-            return content.get_text()
+        if description:
+            return description.strip()
         else:
-            # Make request to webpage
-            response = requests.get(url)
+            return "No meta description found"
 
-            # Parse webpage content using Beautiful Soup
-            soup = BeautifulSoup(response.content, "html.parser")
-
-            # Get content of webpage using tag "body"
-            content = soup.find("body")
-            return content.get_text()
-
-    except:
-        return "Unable to get content"
+    except Exception as e:
+        return f"Unable to get meta description: {str(e)}"
 
 
-def get_content_with_html(url):
-    """Get the content of a webpage with HTML elements"""
+def get_meta_keywords(html_content):
     try:
-        # Check if domain is registered
+        soup = BeautifulSoup(html_content, "html.parser")
+        meta_tags = soup.find_all("meta")
+        keywords = []
+        for tag in meta_tags:
+            if tag.get("name", None) == "keywords":
+                keywords_string = tag.get("content", None)
+                if keywords_string:
+                    keywords.extend(keywords_string.split(","))
+
+        if keywords:
+            return [keyword.strip() for keyword in keywords]
+        else:
+            return []
+
+    except Exception as e:
+        return f"Unable to get meta keywords: {str(e)}"
+
+
+def get_canonical_url(html_content):
+    try:
+        soup = BeautifulSoup(html_content, "html.parser")
+        meta_tags = soup.find_all("meta")
+        canonical_url = ""
+        for tag in meta_tags:
+            if tag.get("rel", None) == "canonical":
+                canonical_url = tag.get("href", None)
+                break
+
+        if canonical_url:
+            return canonical_url.strip()
+        else:
+            return "No canonical URL found"
+
+    except Exception as e:
+        return f"Unable to get canonical URL: {str(e)}"
+
+
+def get_author(html_content):
+    try:
+        soup = BeautifulSoup(html_content, "html.parser")
+        meta_tags = soup.find_all("meta")
+        author = ""
+        for tag in meta_tags:
+            if tag.get("name", None) == "author":
+                author = tag.get("content", None)
+                break
+
+        if author:
+            return author.strip()
+        else:
+            return "No author found"
+
+    except Exception as e:
+        return f"Unable to get author: {str(e)}"
+
+
+def get_publisher(html_content):
+    try:
+        soup = BeautifulSoup(html_content, "html.parser")
+        meta_tags = soup.find_all("meta")
+        publisher = ""
+        for tag in meta_tags:
+            if tag.get("name", None) == "publisher":
+                publisher = tag.get("content", None)
+                break
+
+        if publisher:
+            return publisher.strip()
+        else:
+            return "No publisher found"
+
+    except Exception as e:
+        return f"Unable to get publisher: {str(e)}"
+
+
+def get_language(html_content):
+    try:
+        soup = BeautifulSoup(html_content, "html.parser")
+        meta_tags = soup.find_all("meta")
+        language = ""
+        for tag in meta_tags:
+            if tag.get("http-equiv", None) == "Content-Language":
+                language = tag.get("content", None)
+                break
+
+        if language:
+            return language.strip()
+        else:
+            return "No language found"
+
+    except Exception as e:
+        return f"Unable to get language: {str(e)}"
+
+
+def get_content(url, html_content):
+    """Get the text content of a webpage without HTML elements"""
+    try:
+        # Parse HTML content using Beautiful Soup
+        soup = BeautifulSoup(html_content, "html.parser")
+
+        # Get content of webpage using class
         domain = get_domain(url)
         content_class = CONTENT_AREA.get(domain)
-
         if content_class:
-            # Make request to webpage
-            response = requests.get(url)
-
-            # Parse webpage content using Beautiful Soup
-            soup = BeautifulSoup(response.content, "html.parser")
-
-            # Get content of webpage using class
             content = soup.find("div", class_=content_class)
-            return str(content)
         else:
-            # Make request to webpage
-            response = requests.get(url)
-
-            # Parse webpage content using Beautiful Soup
-            soup = BeautifulSoup(response.content, "html.parser")
-
-            # Get content of webpage using tag "body"
             content = soup.find("body")
-            return str(content)
 
+        # Get text from content
+        if content:
+            text = content.get_text()
+        else:
+            text = ""
+        
+        return text.strip()
+   
+    except:
+        return "Unable to get content"
+
+def get_content_with_html(url, html_content):
+    """Get the content of a webpage with HTML elements"""
+    try:
+        # Parse HTML content using Beautiful Soup
+        soup = BeautifulSoup(html_content, "html.parser")
+
+        # Get content of webpage using class
+        domain = get_domain(url)
+        content_class = CONTENT_AREA.get(domain)
+        if content_class:
+            content = soup.find("div", class_=content_class)
+        else:
+            content = soup.find("body")
+        
+        return str(content)
+    
     except:
         return "Unable to get content"
 
 
-def get_h1(url):
-    """Get the H1 of a webpage"""
-    try:
-        # Make request to webpage
-        response = requests.get(url)
 
-        # Parse webpage content using Beautiful Soup
-        soup = BeautifulSoup(response.content, "html.parser")
 
-        # Get H1 of webpage
-        h1 = soup.find("h1").text if soup.find("h1") else None
 
-        return h1
-    except:
-        return "Unable to get H1"
+def get_h1(file_html):
+   
+    soup = BeautifulSoup(file_html, 'html.parser')
+    
+    # Mencari tag <h1> pertama dalam HTML
+    h1_tag = soup.find('h1')
+    
+    # Mengembalikan teks dari tag <h1> jika ditemukan, atau None jika tidak ditemukan
+    if h1_tag:
+        return h1_tag.text
+    else:
+        return "Not Found"
 
+
+  
 
 def get_headings(content_html):
     soup = BeautifulSoup(content_html, "html.parser")

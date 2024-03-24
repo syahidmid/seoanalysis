@@ -1,21 +1,39 @@
 import streamlit as st
 import time
 import sys
+import pandas as pd
 from urllib.parse import urlparse
 from scrapers.scrape import (
     is_valid_url,
     get_status_code,
     domain_disclaimer,
     get_title,
-    get_description,
+    get_meta_title,
+    get_meta_description,
+    get_meta_keywords,
+    get_canonical_url,
+    get_author,
+    get_publisher,
+    get_language,
     get_content,
     get_content_with_html,
+    get_html_content,
     get_h1,
     get_headings,
     get_first_parapraph,
 )
-from analyzers.links import get_internal_links
-from analyzers.count import count_title_length, count_words, count_meta_description
+from analyzers.links import (
+    get_internal_links, 
+    utm_cleaner, 
+    link_contains_hash, 
+    find_duplicate_links,
+    count_internal_links,
+    internal_link_density,
+)
+from analyzers.count import (
+    word_counter,
+    character_counter,
+)
 from analyzers.keywords import (
     compare_seo_title_h1,
     check_related_keywords,
@@ -24,6 +42,15 @@ from analyzers.keywords import (
     check_primary_keyword_in_content,
     check_primary_keyword_in_headings,
 )
+st.set_page_config(
+    page_title="SEO Content Analysis",
+    page_icon="👋",
+    layout= "wide",
+    initial_sidebar_state="auto",
+)
+# Initialize session state
+if 'results' not in st.session_state:
+    st.session_state['results'] = {}
 
 st.title("SEO Content Analysisssss 🤠 >")
 st.write(
@@ -80,60 +107,150 @@ if st.button("Analyze"):
             st.warning("The website is not up and running")
             sys.exit(
                 1
-            )  # Exit the program with an exit code of 1 # Hentikan eksekusi program di sini
+            )  
         with st.spinner("Start scraping the website..."):
             time.sleep(1)
-            seo_title = get_title(url)
-            # Lanjutkan eksekusi program di sini
-            h1 = get_h1(url)
-            st.header(seo_title)
-            description = get_description(url)
-            st.write(description)
-            st.write(domain_name)
+            domain_name = domain_name
+            file_html = get_html_content(url)
+            content_text = get_content(url, file_html)
+            content_html = get_content_with_html(url, file_html)
+            meta_title = get_meta_title(file_html)
+            meta_description = get_meta_description(file_html)
+            meta_keywords = get_meta_keywords(file_html)
+            disclaimer_message = domain_disclaimer(url)
+            canonical = get_canonical_url(file_html)
+            author = get_author(file_html)
+            publisher = get_publisher(file_html)
+            language = get_language(file_html)
+            h1 = get_h1(file_html)
+            headings = get_headings(content_html)
+            first_parapraph = get_first_parapraph(content_html)
 
-            with st.spinner("Trying to identify the content area..."):
-                time.sleep(1)
-                disclaimer_message = domain_disclaimer(url)
-                st.subheader(":blue[Overview]")
-                st.markdown(disclaimer_message)
+            internal_links_data = get_internal_links(url, content_html)
+            internal_links_total = count_internal_links(url, content_html)
+            
+            # Membuat daftar status_code dengan status kode untuk setiap URL di internal_links_data
+            
+            
 
-                if full_report:
-                    st.write("full report")
 
-            with st.spinner("Starting content analysis..."):
-                time.sleep(1)
-                content_html = get_content_with_html(url)
-                content = get_content(url)
-                headings = get_headings(content_html)
-                first_parapraph = get_first_parapraph(content)
-                title_length = count_title_length(seo_title)
+            data_internal_links = []
+            # Iterasi melalui internal links dan anchor text
+            for link, anchor_text in internal_links_data:
+                cleaned_link = utm_cleaner(link)
+                if not link_contains_hash(cleaned_link):
+                    entry = {
+                        "Link": cleaned_link,
+                        "Anchor Text": anchor_text
+                    }
+                    data_internal_links.append(entry)
 
-            with st.spinner("Calculating word count..."):
-                time.sleep(1)
-                word_count = count_words(content)
-                meta_description_length = count_meta_description(description)
-            with st.spinner("Comparing SEO title with H1..."):
-                seo_title_h1_result = compare_seo_title_h1(seo_title, h1)
-                keyword_in_h1_result = check_primary_keyword_in_h1(primary_keyword, h1)
-                keyword_in_headings = check_primary_keyword_in_headings(
-                    primary_keyword, headings
-                )
-                keyword_in_first_paragraph = check_primary_in_first_p(
-                    primary_keyword, content
-                )
-            with st.spinner("Calculating keyword density..."):
-                time.sleep(1)
-                keyword_density = check_primary_keyword_in_content(
-                    primary_keyword, content
-                )
-                related_keywords_result = check_related_keywords(
-                    content_html, related_keywords_list
-                )
+            data_internal_links_with_status = []
+            # Iterasi melalui internal links dan anchor text
+            for link, anchor_text in internal_links_data:
+                status_code = get_status_code(link)
+                cleaned_link = utm_cleaner(link)
+                if not link_contains_hash(cleaned_link):
+                    entry = {
+                        "Link": cleaned_link,
+                        "Anchor Text": anchor_text,
+                        "Status Code": status_code
+                    }
+                    data_internal_links_with_status.append(entry)
+           
 
-                table_data = {
+            if full_report:
+                # Jika full report, gabungkan data_internal_links dengan status_codes
+                internal_links_table = pd.DataFrame(data_internal_links_with_status)
+            
+            else:
+                # Jika tidak full report, cukup gunakan data_internal_links
+                internal_links_table = pd.DataFrame(data_internal_links)
+            
+            duplicate_links = find_duplicate_links(internal_links_data)
+                            
+
+           
+        with st.spinner("Starting content analysis..."):
+            time.sleep(1)
+            article_length = word_counter(content_text)
+            title_length = character_counter(meta_title)
+            meta_description_length = character_counter(meta_description)
+            seo_title_in_h1 = compare_seo_title_h1(meta_title, h1)
+            keyword_in_h1 = check_primary_keyword_in_h1(primary_keyword, h1)
+            keyword_in_headings = check_primary_keyword_in_headings(primary_keyword, headings)
+            keyword_in_first_paragraph = check_primary_in_first_p(primary_keyword, content_text)
+            keyword_density = check_primary_keyword_in_content(primary_keyword, content_text)
+            related_keywords = check_related_keywords(content_text, related_keywords_list)
+            link_density = internal_link_density(internal_links_total, article_length)
+
+        with st.spinner("Starting competitors analysis..."):
+            
+
+            warning_message = ""
+            table_data_competitor1 = ""
+            if url_input1.strip():
+                file_html = get_html_content(url_input1)
+                title_url = get_h1(file_html)
+                table_data_competitor1 = {
                     "Item": [
-                        "Title Length",
-                        "Meta Description Length",
+                        "Title",
+                    ],
+                    "Result": [
+                        title_url,
+                    ],
+                }
+            else:
+                warning_message = "Please enter URL"
+            table_data_competitor2 = ""
+            if url_input2.strip():
+                file_html = get_html_content(url_input2)
+                title_url = get_h1(file_html)
+                table_data_competitor2 = {
+                    "Item": [
+                        "Title",
+                    ],
+                    "Result": [
+                        title_url,
+                    ],
+                }
+            else:
+                warning_message = "Please enter URL"
+            
+            table_data_competitor3 = ""
+            if url_input3.strip():
+                file_html = get_html_content(url_input3)
+                title_url = get_h1(file_html)
+                table_data_competitor3 = {
+                    "Item": [
+                        "Title",
+                    ],
+                    "Result": [
+                        title_url,
+                    ],
+                }
+            else:
+                warning_message = "Please enter URL"
+           
+            table_data_competitor4 = ""
+            if url_input4.strip():
+                file_html = get_html_content(url_input4)
+                title_url = get_h1(file_html)
+                table_data_competitor4 = {
+                    "Item": [
+                        "Title",
+                    ],
+                    "Result": [
+                        title_url,
+                    ],
+                }
+            else:
+                warning_message = "Please enter URL"
+            
+        with st.spinner("Presenting the analysis results...."):
+            time.sleep(1)
+            table_data = {
+                    "Item": [
                         "Content Length",
                         "SEO Title Compatibility with H1",
                         "Primary Keyword in H1",
@@ -142,26 +259,113 @@ if st.button("Analyze"):
                         "Keyword density",
                     ],
                     "Result": [
-                        title_length,
-                        meta_description_length,
-                        word_count,
-                        seo_title_h1_result,
-                        keyword_in_h1_result,
+                        article_length,
+                        seo_title_in_h1,
+                        keyword_in_h1,
                         keyword_in_headings,
                         keyword_in_first_paragraph,
                         keyword_density,
                     ],
                 }
-                st.write("\n\n")
-                st.table(table_data)
-                outline_expander = st.expander("Outline Analysis")
-                related_keywords_expander = st.expander(
-                    "Related Keywords", expanded=True
-                )
-                internal_links_expander = st.expander("Internal Links", expanded=True)
+            meta_table = {
+                "Meta Property": [
+                    "Meta Title",
+                    "Meta Description",
+                    "Keywords",
+                    "Canonical",
+                    "Author",
+                    "Publisher",
+                    "Language",
+                ],
+                "Value": [
+                    meta_title,
+                    meta_description,
+                    meta_keywords,
+                    canonical,
+                    author,
+                    publisher,
+                    language,
+                ],
+                "Analysis Result": [
+                    title_length,
+                    meta_description_length,
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                ],
+            }
+            
+        # Save results to session state
+        st.session_state['results']['h1'] = h1
+        st.session_state['results']['url'] = url
+        st.session_state['results']['file_html'] = file_html
+        st.session_state['results']['content_text'] = content_text
+        st.session_state['results']['headings'] = headings
+        st.session_state['results']['table_data'] = table_data
+        st.session_state['results']['meta_table'] = meta_table
+        st.session_state['results']['domain_name'] = domain_name
+        st.session_state['results']['meta_description'] = meta_description
+        st.session_state['results']['disclaimer_message'] = disclaimer_message
+        st.session_state['results']['related_keywords'] = related_keywords
+        st.session_state['results']['internal_links_table'] = internal_links_table
+        st.session_state['results']['internal_links_data'] = internal_links_data
+        st.session_state['results']['internal_links_total'] = internal_links_total
+        st.session_state['results']['duplicate_links'] = duplicate_links
+        st.session_state['results']['link_density'] = link_density
+        st.session_state['results']['url_input1'] = url_input1
+        st.session_state['results']['url_input2'] = url_input2
+        st.session_state['results']['url_input3'] = url_input3
+        st.session_state['results']['url_input4'] = url_input4
+        st.session_state['results']['table_competitor1'] = table_data_competitor1
+        st.session_state['results']['table_competitor2'] = table_data_competitor2
+        st.session_state['results']['table_competitor3'] = table_data_competitor3
+        st.session_state['results']['table_competitor4'] = table_data_competitor4
+        st.session_state['results']['warning_message'] = warning_message
 
-            # Outline Analysis
-        with st.expander("Outline", expanded=True):
+# Display results using session state
+if 'results' in st.session_state:
+    results = st.session_state['results']
+    if 'h1' in results:
+        h1 = results['h1']
+        meta_description = results.get('meta_description')
+        domain_name = results.get('domain_name')
+        disclaimer_message = results.get('disclaimer_message')
+        url = results.get('url')
+        table_data = results.get('table_data')
+        related_keywords_result = results.get('related_keywords')
+        internal_links_table = results.get('internal_links_table')
+        internal_links_data = results.get('internal_links_data')
+        internal_links_total = results.get('internal_links_total')
+        link_density = results.get('link_density')
+        duplicate_links = results.get('duplicate_links')
+        meta_table = results.get('meta_table')
+        content_html = results.get('content_html')
+        content_text = results.get('content_text')
+        file_html = results.get('file_html')
+        url_input1 = results.get('url_input1')
+        url_input2 = results.get('url_input2')
+        url_input3 = results.get('url_input3')
+        url_input4 = results.get('url_input4')
+        table_data_competitor1 = results.get('table_competitor1')
+        table_data_competitor2 = results.get('table_competitor2')
+        table_data_competitor3 = results.get('table_competitor3')
+        table_data_competitor4 = results.get('table_competitor4')
+        warning_message = results.get('warning_message')
+
+        st.header(h1)
+        st.write(meta_description)
+        st.write(domain_name)
+        st.subheader(":blue[Overview]")
+        st.write(disclaimer_message)
+        st.write("\n\n")
+        st.table(table_data)
+
+        with st.expander("Meta Properties", expanded=False):
+            st.table(meta_table)
+
+        with st.expander("Outline", expanded=False):
             tab1, tab2, tab3, tab4, tab5 = st.tabs(
                 [
                     "My Article",
@@ -173,74 +377,58 @@ if st.button("Analyze"):
             )
             with tab1:
                 st.subheader(":blue[Headings]")
-                st.write(h1)
-                st.write(url)
-                st.write(description)
-                for heading in headings:
-                    st.write(heading)
-            # Part of the Streamlit main function
+                if 'headings' in results:
+                    headings = results['headings']
+                    for heading in headings:
+                        st.write(heading)
+
             with tab2:
                 st.write("Hello")
-                if url_input1.strip():
-                    title_url1 = get_h1(url_input1)
-                    description_url1 = get_description(url_input1)
-                    content_url1 = get_content_with_html(url_input1)
-                    heading_url1 = get_headings(content_url1)
-                    st.write(title_url1)
-                    st.write(url_input1)
-                    st.write(description_url1)
-                    if heading_url1:
-                        for heading in heading_url1:
-                            st.markdown(heading)
+                if table_data_competitor1:
+                    st.table(table_data_competitor1)
                 else:
-                    st.warning("Please enter URL 1")
+                    st.warning(warning_message)
             with tab3:
-                if url_input2.strip():
-                    title_url2 = get_h1(url_input2)
-                    description_url2 = get_description(url_input2)
-                    content_url2 = get_content_with_html(url_input2)
-                    heading_url2 = get_headings(content_url2)
-                    st.write(title_url2)
-                    st.write(url_input2)
-                    st.write(description_url2)
-                    if heading_url2:
-                        for heading in heading_url2:
-                            st.markdown(heading)
+                st.write("Hello")
+                if table_data_competitor2:
+                    st.table(table_data_competitor2)
                 else:
-                    st.warning("Please enter URL 1")
+                    st.warning(warning_message)
             with tab4:
-                title_url3 = get_h1(url_input3)
-                description_url3 = get_description(url_input3)
-                content_url3 = get_content_with_html(url_input3)
-                heading_url3 = get_headings(content_url3)
-                st.write(title_url3)
-                st.write(url_input3)
-                st.write(description_url3)
-                if heading_url3:
-                    for heading in heading_url3:
-                        st.markdown(heading)
+                if table_data_competitor3:
+                    st.table(table_data_competitor3)
                 else:
-                    st.warning("Please enter URL 1")
+                    st.warning(warning_message)
             with tab5:
-                title_url4 = get_h1(url_input4)
-                description_url4 = get_description(url_input4)
-                content_url4 = get_content_with_html(url_input4)
-                heading_url4 = get_headings(content_url4)
-                st.write(title_url4)
-                st.write(url_input4)
-                st.write(description_url4)
-                if heading_url4:
-                    for heading in heading_url4:
-                        st.markdown(heading)
+                if table_data_competitor4:
+                    st.table(table_data_competitor4)
                 else:
-                    st.warning("Please enter URL 1")
+                    st.warning(warning_message)
+
         # Related Keywords Analysis
         with st.expander("Related Keywords"):
             st.header(":blue[Related keywords]")
-
             st.table(related_keywords_result)
         # Internal Links Analysis
         with st.expander("Internal Links"):
             st.subheader(":blue[Internal Links Analysis]")
-            internal_links_table = get_internal_links(url, full_report)
+            # Menampilkan informasi kepada pengguna
+            """
+            ✂️ We present data that has been cleaned using `utm_cleaner()` and exclude `link_contains_hash()`. But don't worry, we have executed the `status_code()` on all original URLs.
+            """ 
+            
+            st.write(f"Total Inlinks = {internal_links_total} ({link_density:.2f}% of the total words)")
+           
+            if duplicate_links:
+                for link in duplicate_links:
+                    count = internal_links_data.count(link)
+                    st.write(f"❌ Found {count} duplicate internal link")
+            else:
+                st.write("✅ There are no duplicate links in the list of links.")
             st.table(internal_links_table)
+        # Content Text
+        with st.expander("Content"):
+            st.subheader(":blue[Content]")
+            st.write(content_text)
+       
+      
