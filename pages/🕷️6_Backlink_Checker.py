@@ -12,7 +12,6 @@ from scrapers.scrape import (
     get_meta_description,
     get_headings,
     get_redirect_url,
-    load_error_message,
 )
 
 if 'seo_results_df' not in st.session_state or st.session_state['seo_results_df'] is None:
@@ -48,7 +47,6 @@ if st.button("Scrape dan Analisis"):
     
     for index, url in enumerate(urls):
         status_code = get_status_code(url)
-        status_code_messages = load_error_message(status_code) 
         final_url = url
         file_html = None
         meta_title = None
@@ -77,7 +75,7 @@ if st.button("Scrape dan Analisis"):
                 status = "Failed"
                 status_code = 500  
         
-        data_content_r = {'URL': url, 'Redirect URL': final_url, 'Status Code': status_code, 'Status': status_code_messages, 'Status Crawling': status, }  
+        data_content_r = {'URL': url, 'Redirect URL': final_url, 'Status Code': status_code, 'Status Crawling': status, }  
         if meta_title:
             data_content_r['Meta Title'] = meta_title
             data_content_r['Meta Description'] = meta_description

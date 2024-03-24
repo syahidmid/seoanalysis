@@ -8,53 +8,29 @@ from domains import CONTENT_AREA
 from emoji import emojize
 from urllib.parse import urlparse
 
-def load_soft_404_phrases(file_path):
-    with open(file_path, "r") as f:
-        data = json.load(f)
-        return data
-
-soft_404_phrases = load_soft_404_phrases("pages/data/soft_404_phrases.json")
-
-def load_error_message(status_code):
-    file_path = "pages/data/status_code_messages.json"
-    with open(file_path, "r") as f:
-        data = json.load(f)
-        status_code_messages = data.get("status_code_messages", {})
-        return status_code_messages.get(str(status_code), "")
-
 def get_status_code(url, max_redirects=10):
     try:
-        import requests
         response = requests.get(url, allow_redirects=True, timeout=10)
-        response.raise_for_status()  
-        soft_404_phrases = load_soft_404_phrases("soft_404_phrases.json")
+        response.raise_for_status()  # Raise HTTPError for bad status codes
+        return response.status_code
 
-        for phrase in soft_404_phrases:
-            if phrase.lower() in response.text.lower():
-                return "Soft 404"
-
-        if response.status_code == 404:
-            return 404
-        else:
-            return response.status_code
-
-    except requests.exceptions.TooManyRedirects:
+    except TooManyRedirects:
         return 302  # Too many redirects
 
-    except requests.exceptions.SSLError:
+    except SSLError:
         return 495  # SSL Certificate Error
 
-    except requests.exceptions.Timeout:
+    except Timeout:
         return 408  # Timeout error
 
     except requests.exceptions.MissingSchema:
         return 400  # Missing URL schema
 
-    except requests.exceptions.HTTPError as e:
-        return e.response.status_code  # Other HTTP errors
+    except RequestException:
+        return 500  # Other request exceptions
 
     except Exception:
-        return 500  # Other unknown errors
+        return 0  # Other unknown errors
 
 def get_redirect_url(url):
     try:
