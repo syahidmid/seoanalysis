@@ -33,7 +33,8 @@ if st.button("Scrape dan Analisis", key="analyze_button"):
     for index, url in enumerate(urls):
         status_code = get_status_code(url)
         final_url = url
-        meta_title = None
+        meta_title = None 
+        meta_description = None 
         backlinks_custom = []
 
         try:
