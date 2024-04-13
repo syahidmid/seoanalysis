@@ -37,6 +37,10 @@ elif input_option == "Upload File CSV":
     else:
         st.warning("Silakan unggah file CSV terlebih dahulu.")
         st.stop()
+target_url1 = st.text_input("Masukkan Target URL 1:", 'https://lifepal.com')
+target_url2 = st.text_input("Masukkan Target URL 2:", 'https://moneysmart.id')
+
+urls = st.text_area("Masukkan URL (pisahkan dengan Enter)", height=200).split('\n')
 
 if st.button("Scrape dan Analisis"):
     result_content = []
@@ -50,7 +54,7 @@ if st.button("Scrape dan Analisis"):
         final_url = url
         file_html = None
         meta_title = None
-        backlinks_lifepal = []
+        backlinks_custom = []
         status = ""
         redirect_url = ""
 
@@ -66,8 +70,9 @@ if st.button("Scrape dan Analisis"):
                 content_text = get_content(final_url, file_html)
                 meta_title = get_meta_title(file_html)  
                 meta_description = get_meta_description(file_html)
-                backlinks = re.findall(r'<a\s+(?:[^>]*?\s+)?href="(https?://(?:www\.)?(?:lifepal\.co\.id|moneysmart\.id)/[^"]*)"', file_html)
-                backlinks_lifepal.extend(backlinks) 
+                regex_pattern = fr'<a\s+(?:[^>]*?\s+)?href="(https?://(?:www\.)?({re.escape(target_url1)}|{re.escape(target_url2)})/[^"]*)"'
+                backlinks = re.findall(regex_pattern, file_html)
+                backlinks_custom.extend(backlinks)
                 status = "Success"
             else:
                 status = "Failed"
