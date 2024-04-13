@@ -29,9 +29,10 @@ if st.button("Scrape dan Analisis", key="analyze_button"):
     for index, url in enumerate(urls):
         status_code = get_status_code(url)
         final_url = url
-        meta_title = None 
-        meta_description = None 
+        meta_title = None
+        meta_description = None  # Initialize with a default value
         backlinks_custom = []
+        status = "Failed"  # Default status
 
         try:
             if status_code in [301, 302]:
@@ -41,7 +42,7 @@ if st.button("Scrape dan Analisis", key="analyze_button"):
             if status_code == 200 or status_code in [301, 302]:
                 file_html = get_html_content(final_url)
                 meta_title = get_meta_title(file_html)
-                meta_description = get_meta_description(file_html)
+                meta_description = get_meta_description(file_html)  # Assign value if possible
                 
                 # Dynamic regex pattern based on user input
                 regex_pattern = fr'<a\s+(?:[^>]*?\s+)?href="(https?://(?:www\.)?({re.escape(target_url1)}|{re.escape(target_url2)})/[^"]*)"'
@@ -49,30 +50,32 @@ if st.button("Scrape dan Analisis", key="analyze_button"):
                 backlinks_custom.extend(backlinks)
 
                 status = "Success"
-            else:
-                status = "Failed"
         except requests.exceptions.RequestException:
-            status = "Failed"
-            status_code = 500
+            status_code = 500  # Indicate a server error
 
-        # Add result to DataFrame
-        data_row = {
+        # Construct the result record
+        data_content_r = {
             'URL': url,
             'Redirect URL': final_url,
             'Status Code': status_code,
-            'Status Crawling': status,
-            'Meta Title': meta_title,
-            'Meta Description': meta_description,
-            'Backlinks Custom': backlinks_custom
+            'Status Crawling': status
         }
-        result_content.append(data_row)
+        
+        if meta_title:
+            data_content_r['Meta Title'] = meta_title
+            data_content_r['Meta Description'] = meta_description
+            data_content_r['Backlinks'] = backlinks_custom
 
-        # Update progress bar
-        progress_bar.progress((index + 1) / total_urls)
+        result_content.append(data_content_r)
+
+        # Update progress bar with current progress
+        progress_percent = min((index + 1) / total_urls, 1.0) if total_urls != 0 else 1.0
+        progress_bar.progress(progress_percent, text=f"Progress: {index + 1}/{total_urls} URLs scraped")
         time.sleep(0.1)
 
-    # Update DataFrame in session state and display
+    # Update DataFrame in session state and display it
     st.session_state['seo_results_df'] = pd.DataFrame(result_content)
     df_placeholder.dataframe(st.session_state['seo_results_df'])
 
     progress_bar.empty()
+
