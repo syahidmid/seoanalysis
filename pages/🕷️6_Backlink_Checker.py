@@ -16,13 +16,9 @@ if 'seo_results_df' not in st.session_state or st.session_state['seo_results_df'
     st.session_state['seo_results_df'] = pd.DataFrame(columns=['URL', 'Redirect URL', 'Status Code', 'Status Crawling', 'Meta Title', 'Meta Description', 'Backlinks Custom'])
 
 st.title("🕷️Backlink Checker")
-
-# Input for target URLs
-target_url1 = st.text_input("Masukkan Target URL 1:", 'https://lifepal.co.id', key="target_url_1")
-target_url2 = st.text_input("Masukkan Target URL 2:", 'https://moneysmart.id', key="target_url_2")
-
-# Input for URLs to analyze
 urls = st.text_area("Masukkan URL (pisahkan dengan Enter)", height=200, key="url_input").split('\n')
+target_url1 = st.text_input("Masukkan Target URL 1:", 'lifepal.co.id', key="target_url_1")
+target_url2 = st.text_input("Masukkan Target URL 2:", 'moneysmart.id', key="target_url_2")
 
 if st.button("Scrape dan Analisis", key="analyze_button"):
     result_content = []
