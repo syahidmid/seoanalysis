@@ -84,7 +84,7 @@ if st.button("Scrape dan Analisis"):
         if meta_title:
             data_content_r['Meta Title'] = meta_title
             data_content_r['Meta Description'] = meta_description
-            data_content_r['Backlinks to Lifepal'] = backlinks_lifepal
+            data_content_r['Backlinks to Lifepal'] = backlinks_custom
         result_content.append(data_content_r)
 
         progress_percent = min((index + 1) / total_urls, 1.0) if total_urls != 0 else 1.0
